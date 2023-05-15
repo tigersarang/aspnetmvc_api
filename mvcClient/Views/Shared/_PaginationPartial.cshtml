@@ -1,0 +1,35 @@
+﻿@model CommLibs.Dto.PagedResult<CommLibs.Dto.ProductDto>
+
+<nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
+        <li class="page-item @(Model.PageNumber == 1 ? "disabled" : "")">
+            <button route-pageNumber="1" class="btnPage page-link ">처음 &nbsp;</button>
+        </li>
+
+        <li class="page-item @(Model.PageNumber <= Model.PageSize ? "disabled" : "")">
+            <button route-pageNumber="@(Model.PageNumber - 10)" class="page-link btnPage ">이전 &nbsp;</button>
+        </li>
+        @for (int i = Model.StartPage; i <= Model.EndPage; i++)
+        {
+            <li class="page-item">
+                <button route-pageNumber="@i" class=" btnPage page-link @(Model.PageNumber == i ? "active" : "disabled")">@i &nbsp;</button>
+            </li>
+        }
+        <li class="page-item @(Model.StartPage + Model.PageSize-1 >= Model.TotalPages ? "disabled" : "")">
+            <button route-pageNumber="@(Model.StartPage + Model.PageSize >= Model.TotalPages ? Model.TotalPages : Model.StartPage + Model.PageSize)"
+                    class="page-link btnPage ">
+                다음 &nbsp;
+            </button>
+        </li>
+        <li class="page-item @(Model.PageNumber == Model.TotalPages ? "disabled" : "")">
+            <button route-pageNumber="@Model.TotalPages" class="page-link btnPage">마지막 &nbsp;</button>
+
+        </li>
+    </ul>
+</nav>
+
+<style>
+    .page-link {
+        border: none;
+    }
+</style>

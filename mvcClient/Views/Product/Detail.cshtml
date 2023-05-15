@@ -1,0 +1,60 @@
+﻿@model CommLibs.Dto.ProductDto
+
+@{
+    ViewData["Title"] = "Detail";
+}
+
+<h1>Detail</h1>
+
+<dt>
+    <h4>ProductDto</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Price)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Price)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Content)
+        </dt>
+        <div class="form-control">
+            <textarea asp-for="Content" class="form-control summernote"></textarea>
+
+        </div>
+    </dl>
+</div>
+<div class="text-center">
+    @Html.ActionLink("Update", "Update", new { id = Model.Id}, new {@class="btn btn-primary"})
+    @Html.ActionLink("Delete", "Delete", new { Model.Id }, new {@class="btn btn-danger"})
+    <a href="#" class="btn btn-dark" onclick="history.back()">Back to List</a>
+
+
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $(document).ready(function () {
+            $('.summernote').summernote();
+        });
+
+        $(".summernote").summernote({
+            minHeight: null,
+            maxHeight: null,
+            focus: true,
+            toolbar: []
+        });
+
+        $(".summernote").summernote('disable');
+    </script>
+}

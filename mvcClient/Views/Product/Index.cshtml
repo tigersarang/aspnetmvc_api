@@ -1,0 +1,67 @@
+﻿@model CommLibs.Dto.PagedResult<CommLibs.Dto.ProductDto>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<form asp-action="index" method="get">
+    <div class="col">
+        <div class="d-flex justify-content-between">
+            <div class="d-flex align-items-center">
+
+                <label class="mb-0 me-2">검색  </label>
+                @Html.TextBox("search", Model.Search,new {@class="mb-0 me-2"} )
+
+                <input type="submit" value="Search" class="btn btn-primary" />
+            </div>
+            <a asp-action="Create" class="btn btn-primary">Create New</a>
+
+        </div>
+    </div>
+</form>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th class="col-1">
+                Id
+            </th>
+            <th>
+                Name
+            </th>
+            <th class="col-1">
+                Price
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Items)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Id)
+                </td>
+                <td>
+                    @Html.ActionLink(item.Name, "Detail", new { id = item.Id }, new {@class="text-decoration-none"})
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Price)
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<partial name="_PaginationPartial" model="Model" />
+
+@section Scripts {
+    <script>
+        $(document).on('click', ".btnPage", function () {
+            var pageNumber = $(this).attr("route-pageNumber"); // 이동할 페이지
+            var pageSize = @Model.PageSize; // 페이지당 데이터 개수
+            var search = $('#search').val(); // 검색어
+            location.href = `${window.location.origin}/Product/Index?pageNumber=${pageNumber}&pageSize=${pageSize}&search=${search}`;
+        });
+    </script>
+}
