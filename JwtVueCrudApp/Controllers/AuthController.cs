@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 
 namespace JwtVueCrudApp.Controllers
 {
@@ -18,11 +19,12 @@ namespace JwtVueCrudApp.Controllers
     {
         private readonly ApplicationDbContext _dbContext;
         private readonly IConfiguration _configuration;
-
-        public AuthController(ApplicationDbContext dbContext, IConfiguration configuration)
+        private readonly ILogger<AuthController> _logger;
+        public AuthController(ApplicationDbContext dbContext, IConfiguration configuration, ILogger<AuthController> logger)
         {
             _dbContext = dbContext;
             _configuration = configuration;
+            _logger = logger;
         }
 
         [AllowAnonymous]
@@ -48,30 +50,35 @@ namespace JwtVueCrudApp.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
-            try { 
-            if (ModelState.IsValid)
+            _logger.LogWarning("Login Start...");
+
+
+            try
             {
-                var user = _dbContext.Users.SingleOrDefault(u => u.UserName == model.UserName);
-
-                if (user != null && BCrypt.Net.BCrypt.Verify(model.Password, user.Password))
+                if (ModelState.IsValid)
                 {
-                    string accessToken = GenerateAccessToken(user);
-                    string refreshToken = GenerateRefreshToken();
+                    var user = _dbContext.Users.SingleOrDefault(u => u.UserName == model.UserName);
 
-                    user.RefreshToken = refreshToken;
-                    user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
-                    await _dbContext.SaveChangesAsync();
-                    return Ok(new { Token = accessToken, RefreshToken = refreshToken });
+                    if (user != null && BCrypt.Net.BCrypt.Verify(model.Password, user.Password))
+                    {
+                        string accessToken = GenerateAccessToken(user);
+                        string refreshToken = GenerateRefreshToken();
+
+                        user.RefreshToken = refreshToken;
+                        user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
+                        await _dbContext.SaveChangesAsync();
+                        return Ok(new { Token = accessToken, RefreshToken = refreshToken });
+                    }
+                    else
+                    {
+                        return Unauthorized();
+                    }
                 }
-                else
-                {
-                    return Unauthorized();
-                }
+                return BadRequest(ModelState);
             }
-            return BadRequest(ModelState);
-                            }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 return BadRequest(ex.Message);
             }
         }
