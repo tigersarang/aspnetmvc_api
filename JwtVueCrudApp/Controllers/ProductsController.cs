@@ -56,6 +56,8 @@ namespace JwtVueCrudApp.Controllers
         {
             if (ModelState.IsValid)
             {
+                User user = _dbContext.Users.FirstOrDefault(u => u.Id == product.UserId);
+                product.User = user;
                 _dbContext.Products.Add(product);
                 _dbContext.SaveChanges();
                 return CreatedAtAction(nameof(GetById), new { id = product.Id }, product);
@@ -78,6 +80,7 @@ namespace JwtVueCrudApp.Controllers
                 product.Name = updatedProduct.Name;
                 product.Price = updatedProduct.Price;
                 product.Content = updatedProduct.Content;
+                product.UpdatedDate = DateTime.Now;
 
                 _dbContext.SaveChanges();
                 return NoContent();

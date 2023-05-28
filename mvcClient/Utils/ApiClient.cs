@@ -18,10 +18,9 @@ namespace mvcClient.Utils
         }
 
         // JwtVueCrudApp의 AuthController.cs의 public IActionResult Register([FromBody] RegisterModel model)과 대응
-        public async Task<HttpResponseMessage> Register(string username, string password)
+        public async Task<HttpResponseMessage> Register(UserDto userDto)
         {
-            var model = new UserDto { UserName = username, Password = password };
-            var response = await _httpClient.PostAsJsonAsync("auth/register", model);
+            var response = await _httpClient.PostAsJsonAsync("auth/register", userDto);
             return response;
         }
 
@@ -131,6 +130,13 @@ namespace mvcClient.Utils
         {
             var response = await _httpClient.DeleteAsync($"products/{id}");
             return response.IsSuccessStatusCode;
+        }
+
+        // get roles
+        public async Task<List<RoleDto>> GetRoles()
+        {
+            var response = await _httpClient.GetAsync("auth/roles");
+            return await response.Content.ReadFromJsonAsync<List<RoleDto>>();
         }
 
 

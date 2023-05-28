@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.Linq;
 using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
 
 namespace JwtVueCrudApp.Controllers
 {
@@ -37,8 +38,10 @@ namespace JwtVueCrudApp.Controllers
                 {
                     return BadRequest("Username already exists");
                 }
+                
+                List<Role> roles = _dbContext.Roles.Where(r => model.Roles.Contains(r.Id.ToString())).ToList();
 
-                var user = new User { UserName = model.UserName, Password = BCrypt.Net.BCrypt.HashPassword(model.Password) };
+                var user = new User { UserName = model.UserName, Password = BCrypt.Net.BCrypt.HashPassword(model.Password), Roles = roles};
                 _dbContext.Users.Add(user);
                 _dbContext.SaveChanges();
                 return Ok();
@@ -57,7 +60,7 @@ namespace JwtVueCrudApp.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    var user = _dbContext.Users.SingleOrDefault(u => u.UserName == model.UserName);
+                    var user = _dbContext.Users.Include(u => u.Roles).SingleOrDefault(u => u.UserName == model.UserName);
 
                     if (user != null && BCrypt.Net.BCrypt.Verify(model.Password, user.Password))
                     {
@@ -81,6 +84,14 @@ namespace JwtVueCrudApp.Controllers
                 _logger.LogError(ex.Message);
                 return BadRequest(ex.Message);
             }
+        }
+        // get : /api/auth/Roles
+        [AllowAnonymous]
+        [HttpGet("Roles")]
+        public IActionResult GetRoles()
+        {
+            var roles = _dbContext.Roles.ToList();
+            return Ok(roles);
         }
 
         [HttpPost("refresh")]
@@ -118,7 +129,8 @@ namespace JwtVueCrudApp.Controllers
                 Subject = new ClaimsIdentity(new Claim[]
                 {
                             new Claim(ClaimTypes.Name, user.UserName),
-                            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
+                            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                            new Claim(ClaimTypes.Role, string.Join(",", user.Roles.Select(r => r.Name)))
                 }),
                 Expires = DateTime.UtcNow.AddSeconds(20),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),

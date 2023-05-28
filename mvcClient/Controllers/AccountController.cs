@@ -1,5 +1,6 @@
 ﻿using CommLibs.Dto;
 using Microsoft.AspNetCore.Mvc;
+using mvcClient.Dto;
 using mvcClient.Utils;
 using Newtonsoft.Json;
 using System.IdentityModel.Tokens.Jwt;
@@ -33,6 +34,7 @@ namespace mvcClient.Controllers
                 HttpContext.Session.SetString("AccessToken", token.Token);
                 HttpContext.Session.SetString("TokenExpiration", JwtDecoder.GetExpirationDate(token.Token).ToString());
                 HttpContext.Session.SetString("refreshToken", token.RefreshToken);
+                HttpContext.Session.SetString("UserName", userName);
                 return RedirectToAction("Index", "Home");
             }
 
@@ -40,21 +42,32 @@ namespace mvcClient.Controllers
             return View();
         }
         [HttpGet]
-        public IActionResult Register()
+        public async Task<IActionResult> Register()
         {
-            return View();
+            // getRoles()를 호출하여 role을 가져온다.
+            var roles = await _apiClient.GetRoles();
+
+            if (roles == null) roles = new List<RoleDto>();
+
+            return View(roles);
         }
         [HttpPost]
-        public async Task<IActionResult> Register(string userName, string password)
+        public async Task<IActionResult> Register(UserDto userDto)
         {
-            var response = await _apiClient.Register(userName, password);
+            var response = await _apiClient.Register(userDto);
+
+
             if (response.IsSuccessStatusCode)
             {
                 return RedirectToAction("Login");
             }
 
+            var roles = await _apiClient.GetRoles();
+            if (roles == null) roles = new List<RoleDto>();
+
+
             ModelState.AddModelError("", "회원가입에 실패하였습니다.");
-            return View();
+            return View(roles);
         }
         [HttpGet("Logout")]
         public IActionResult Logout()

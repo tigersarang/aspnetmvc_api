@@ -17,5 +17,13 @@ namespace JwtVueCrudApp.Models
         public decimal Price { get; set; }
 
         public string Content { get; set; }
+
+        public List<Reply> Replies { get; set; }
+
+        public int? UserId { get; set; }
+        public User? User { get; set; }
+        public DateTime CreatedDate { get; set; } = DateTime.Now;
+        public DateTime UpdatedDate { get; set; } = DateTime.Now;
+
     }
 }

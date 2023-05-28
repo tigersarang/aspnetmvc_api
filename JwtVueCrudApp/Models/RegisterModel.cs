@@ -10,5 +10,7 @@ namespace JwtVueCrudApp.Models
         [Required]
         [MinLength(8)]
         public string Password { get; set; }
+
+        public List<string> Roles { get; set; }
     }
 }
