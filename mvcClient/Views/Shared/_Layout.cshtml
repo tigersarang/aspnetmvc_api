@@ -36,6 +36,12 @@
                                 <li class="nav-item">
                                     <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Logout">Logout</a>
                                 </li>
+                                @if (Context.Session.GetString("role") == "Admin")    // 관리자이면
+                                {
+                                    <li class="nav-item">
+                                        <a class="nav-link text-dark" asp-area="" asp-controller="Admin" asp-action="AdminIndex">AdminIndex</a>
+                                    </li>
+                                }
                             }
                             else   // 로그인이 안되어 있으면
                             {

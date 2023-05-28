@@ -139,6 +139,12 @@ namespace mvcClient.Utils
             return await response.Content.ReadFromJsonAsync<List<RoleDto>>();
         }
 
+        // get AdminAction
+        public async Task<string> GetAdminActions()
+        {
+            var response = await _httpClient.GetAsync("auth/AdminAction");
+            return await response.Content.ReadAsStringAsync();
+        }
 
     }
 }

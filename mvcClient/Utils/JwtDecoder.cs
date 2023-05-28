@@ -1,4 +1,5 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace mvcClient.Utils
 {
@@ -15,6 +16,12 @@ namespace mvcClient.Utils
         {
             var jwtSecurityToken = DecodeToken(token);
             return jwtSecurityToken.ValidTo;
+        }
+
+        public static List<Claim> GetClaims(string token)
+        {
+            var jwtSecurityToken = DecodeToken(token);
+            return jwtSecurityToken.Claims.ToList();
         }
     }
 }

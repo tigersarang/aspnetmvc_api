@@ -4,6 +4,7 @@ using mvcClient.Dto;
 using mvcClient.Utils;
 using Newtonsoft.Json;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace mvcClient.Controllers
 {
@@ -30,6 +31,11 @@ namespace mvcClient.Controllers
             {
                 var result = await response.Content.ReadAsStringAsync();
                 var token = JsonConvert.DeserializeObject<TokenDto>(result);
+
+                JwtDecoder.GetClaims(token.Token).ToList().ForEach(c =>
+                {
+                    if (c.Type == "role") HttpContext.Session.SetString(c.Type, c.Value);
+                });
 
                 HttpContext.Session.SetString("AccessToken", token.Token);
                 HttpContext.Session.SetString("TokenExpiration", JwtDecoder.GetExpirationDate(token.Token).ToString());
