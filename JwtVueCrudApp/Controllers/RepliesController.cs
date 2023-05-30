@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CommLibs.Extensions;
+using CommLibs.Models;
 
 namespace JwtVueCrudApp.Controllers
 {
@@ -26,12 +27,9 @@ namespace JwtVueCrudApp.Controllers
             // Models.Reply Create. 
             if (ModelState.IsValid)
             {
-                User user = _dbContext.Users.FirstOrDefault(u => u.Id == reply.UserId);
-                if (user == null)
-                {
-                    return NotFound("로그인 사용자 정보가 없습니다.");
-                }
-                reply.User = user;
+                reply.User = _dbContext.Users.FirstOrDefault(u => u.Id == reply.UserId);
+                reply.Product = _dbContext.Products.FirstOrDefault(p => p.Id == reply.ProductId);
+
                 _dbContext.Replies.Add(reply);
                 _dbContext.SaveChanges();
                 return Ok(reply);

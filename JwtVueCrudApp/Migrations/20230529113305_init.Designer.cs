@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace JwtVueCrudApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230528100528_init")]
+    [Migration("20230529113305_init")]
     partial class init
     {
         /// <inheritdoc />
@@ -25,7 +25,7 @@ namespace JwtVueCrudApp.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("JwtVueCrudApp.Models.Product", b =>
+            modelBuilder.Entity("CommLibs.Models.Product", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -37,18 +37,17 @@ namespace JwtVueCrudApp.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("CreatedDate")
+                    b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<DateTime>("UpdatedDate")
+                    b.Property<DateTime?>("UpdatedDate")
                         .HasColumnType("datetime2");
 
                     b.Property<int?>("UserId")
@@ -61,7 +60,7 @@ namespace JwtVueCrudApp.Migrations
                     b.ToTable("Products");
                 });
 
-            modelBuilder.Entity("JwtVueCrudApp.Models.Reply", b =>
+            modelBuilder.Entity("CommLibs.Models.Reply", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -94,7 +93,7 @@ namespace JwtVueCrudApp.Migrations
                     b.ToTable("Replies");
                 });
 
-            modelBuilder.Entity("JwtVueCrudApp.Models.Role", b =>
+            modelBuilder.Entity("CommLibs.Models.Role", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -106,15 +105,12 @@ namespace JwtVueCrudApp.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("UserId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.ToTable("Roles");
                 });
 
-            modelBuilder.Entity("JwtVueCrudApp.Models.User", b =>
+            modelBuilder.Entity("CommLibs.Models.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -132,39 +128,48 @@ namespace JwtVueCrudApp.Migrations
                     b.Property<DateTime?>("RefreshTokenExpiry")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("RoleId")
-                        .HasColumnType("int");
-
                     b.Property<string>("UserName")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("RoleId");
 
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("JwtVueCrudApp.Models.Product", b =>
+            modelBuilder.Entity("RoleUser", b =>
                 {
-                    b.HasOne("JwtVueCrudApp.Models.User", "User")
+                    b.Property<int>("RolesId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UsersId")
+                        .HasColumnType("int");
+
+                    b.HasKey("RolesId", "UsersId");
+
+                    b.HasIndex("UsersId");
+
+                    b.ToTable("RoleUser");
+                });
+
+            modelBuilder.Entity("CommLibs.Models.Product", b =>
+                {
+                    b.HasOne("CommLibs.Models.User", "User")
                         .WithMany("Products")
                         .HasForeignKey("UserId");
 
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("JwtVueCrudApp.Models.Reply", b =>
+            modelBuilder.Entity("CommLibs.Models.Reply", b =>
                 {
-                    b.HasOne("JwtVueCrudApp.Models.Product", null)
+                    b.HasOne("CommLibs.Models.Product", null)
                         .WithMany("Replies")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("JwtVueCrudApp.Models.User", "User")
+                    b.HasOne("CommLibs.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -173,28 +178,27 @@ namespace JwtVueCrudApp.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("JwtVueCrudApp.Models.User", b =>
+            modelBuilder.Entity("RoleUser", b =>
                 {
-                    b.HasOne("JwtVueCrudApp.Models.Role", "Role")
-                        .WithMany("Users")
-                        .HasForeignKey("RoleId")
+                    b.HasOne("CommLibs.Models.Role", null)
+                        .WithMany()
+                        .HasForeignKey("RolesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Role");
+                    b.HasOne("CommLibs.Models.User", null)
+                        .WithMany()
+                        .HasForeignKey("UsersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
-            modelBuilder.Entity("JwtVueCrudApp.Models.Product", b =>
+            modelBuilder.Entity("CommLibs.Models.Product", b =>
                 {
                     b.Navigation("Replies");
                 });
 
-            modelBuilder.Entity("JwtVueCrudApp.Models.Role", b =>
-                {
-                    b.Navigation("Users");
-                });
-
-            modelBuilder.Entity("JwtVueCrudApp.Models.User", b =>
+            modelBuilder.Entity("CommLibs.Models.User", b =>
                 {
                     b.Navigation("Products");
                 });

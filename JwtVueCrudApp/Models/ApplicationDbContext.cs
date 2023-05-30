@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using CommLibs.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace JwtVueCrudApp.Models
 {

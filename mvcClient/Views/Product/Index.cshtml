@@ -1,4 +1,4 @@
-﻿@model CommLibs.Dto.PagedResult<CommLibs.Dto.ProductDto>
+﻿@model CommLibs.Dto.PagedResult<CommLibs.Models.Product>
 
 @{
     ViewData["Title"] = "Index";
@@ -33,6 +33,12 @@
             <th class="col-1">
                 Price
             </th>
+            <th class="col-2">
+                Register
+            </th>
+            <th class="col-2">
+                RegistDate
+            </th>
         </tr>
     </thead>
     <tbody>
@@ -47,6 +53,12 @@
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Price)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.User.UserName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CreatedDate)
                 </td>
             </tr>
         }

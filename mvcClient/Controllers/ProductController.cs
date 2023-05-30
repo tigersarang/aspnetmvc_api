@@ -1,4 +1,5 @@
 ﻿using CommLibs.Dto;
+using CommLibs.Models;
 using Microsoft.AspNetCore.Mvc;
 using mvcClient.Utils;
 
@@ -67,7 +68,7 @@ namespace mvcClient.Controllers
             return View();
         }
         [HttpPost]
-        public async Task<IActionResult> Create(ProductDto product)
+        public async Task<IActionResult> Create(Product product)
         {
             if (_apiClient.IsTokenExpired())
             {
@@ -78,6 +79,8 @@ namespace mvcClient.Controllers
             }
 
             _apiClient.SetAccessToken();
+
+            product.UserId = int.Parse(HttpContext.Session.GetString("UserId"));
 
             var result = await _apiClient.Create(product);
             if (result)
@@ -104,7 +107,7 @@ namespace mvcClient.Controllers
             return View(product);
         }
         [HttpPost]
-        public async Task<IActionResult> Update(int id, ProductDto product)
+        public async Task<IActionResult> Update(int id, Product product)
         {
             if (_apiClient.IsTokenExpired())
             {

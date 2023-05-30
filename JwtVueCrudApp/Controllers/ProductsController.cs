@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CommLibs.Extensions;
+using CommLibs.Models;
 
 namespace JwtVueCrudApp.Controllers
 {
@@ -13,10 +14,12 @@ namespace JwtVueCrudApp.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly ApplicationDbContext _dbContext;
+        private readonly ILogger<ProductsController> _logger;
 
-        public ProductsController(ApplicationDbContext dbContext)
+        public ProductsController(ApplicationDbContext dbContext, ILogger<ProductsController> logger)
         {
             _dbContext = dbContext;
+            _logger = logger;
         }
 
         // GET: api/products
@@ -29,10 +32,10 @@ namespace JwtVueCrudApp.Controllers
 
             if (!string.IsNullOrEmpty(search))
             {
-                query = query.Where(p => p.Name.Contains(search));
+                query = query.Where(p => p.Name.Contains(search)).AsNoTracking();
             }
 
-            var pagedResult = await query.OrderByDescending(p => p.Id).ToPagedResultAsync(pageNumber, pageSize);
+            var pagedResult = await query.Include(u => u.User).OrderByDescending(p => p.Id).ToPagedResultAsync(pageNumber, pageSize);
 
             return Ok(pagedResult);
 
@@ -40,27 +43,35 @@ namespace JwtVueCrudApp.Controllers
 
         // GET: api/products/{id}
         [HttpGet("{id}")]
-        public IActionResult GetById(int id)
+        public async Task<IActionResult> GetById(int id)
         {
-            var product = _dbContext.Products.FirstOrDefault(p => p.Id == id);
-            if (product == null)
+            try
             {
-                return NotFound();
+                var product = await _dbContext.Products.Include(r => r.Replies).FirstAsync(p => p.Id == id);
+
+                if (product == null)
+                {
+                    return NotFound();
+                }
+                return Ok(product);
+            } catch(Exception ex)
+            {
+                _logger.LogError(ex, "Error occured while getting product by id");
+                return BadRequest(ex.Message);
             }
-            return Ok(product);
         }
 
         // POST: api/products
         [HttpPost]
-        public IActionResult Create([FromBody] Product product)
+        public async Task<IActionResult> Create([FromBody] Product product)
         {
             if (ModelState.IsValid)
             {
-                User user = _dbContext.Users.FirstOrDefault(u => u.Id == product.UserId);
+                User user = await _dbContext.Users.FirstAsync(u => u.Id == product.UserId);
                 product.User = user;
-                _dbContext.Products.Add(product);
-                _dbContext.SaveChanges();
-                return CreatedAtAction(nameof(GetById), new { id = product.Id }, product);
+                await _dbContext.Products.AddAsync(product);
+                await _dbContext.SaveChangesAsync();
+                return NoContent();
             }
             return BadRequest(ModelState);
         }

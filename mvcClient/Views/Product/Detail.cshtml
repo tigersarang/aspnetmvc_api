@@ -1,43 +1,74 @@
-﻿@model CommLibs.Dto.ProductDto
+﻿@model CommLibs.Models.Product
 
 @{
     ViewData["Title"] = "Detail";
 }
 
-<h1>Detail</h1>
+<style>
+    .note-editor.note-airframe .note-editing-area .note-editable[contenteditable=false],
+    .note-editor.note-frame .note-editing-area .note-editable[contenteditable=false] {
+        background-color: #fff; /* 흰색 배경 */
+    }
 
-<dt>
-    <h4>ProductDto</h4>
+    .note-statusbar {
+        display: none;
+    }
+</style>
+
+<dt class="mt-lg-5">
+    <h4>@Html.DisplayFor(model => model.Name)</h4>
+    <input type="hidden" id="productId" value="@Model.Id" />
+
     <hr />
     <dl class="row">
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Name)
-        </dd>
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Price)
         </dt>
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Price)
         </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Content)
-        </dt>
-        <div class="form-control">
+        <div class="form-control border-0 mt-3">
             <textarea asp-for="Content" class="form-control summernote"></textarea>
 
         </div>
     </dl>
-</div>
+</dt>
 <div class="text-center">
     @Html.ActionLink("Update", "Update", new { id = Model.Id}, new {@class="btn btn-primary"})
     @Html.ActionLink("Delete", "Delete", new { Model.Id }, new {@class="btn btn-danger"})
     <a href="#" class="btn btn-dark" onclick="history.back()">Back to List</a>
 
-
 </div>
+
+<div class="card mt-4 border-0">
+    <div class="card-body  border-0">
+        <h5 class="card-title border-0">댓글 등록</h5>
+
+        <div class="form-group">
+            <input type="hidden" name="id" value="@Model.Id" />
+            <textarea class="form-control" id="replyContent" rows="3" placeholder="댓글을 입력하세요"></textarea>
+        </div>
+        <button type="submit" class="badge btn-primary mt-3 add-comment">등록</button>
+
+    </div>
+</div>
+
+<div class="card mt-4 border-0">
+    <div class="card-body">
+        <h5 class="card-title">댓글 목록</h5>
+
+        @foreach (var item in Model.Replies)
+        {
+            <!-- 댓글들이 여기에 위치... -->
+            <div class="comment mt-2">
+                <p>@item.Content</p>
+                <button type="button" class="btn btn-danger btn-sm delete-comment" data-comment-id="1">삭제</button>
+            </div>
+            <!-- 위의 댓글 div를 댓글 수만큼 반복 -->
+        }
+    </div>
+</div>
+
 
 @section Scripts {
     @{
@@ -46,15 +77,40 @@
     <script>
         $(document).ready(function () {
             $('.summernote').summernote();
+
+            $(".add-comment").click(function () {
+                let reply = {
+                    id: 0,
+                    content: $("#replyContent").val(),
+                    productId: $("#productId").val(),
+                    product: null,
+                    userId: 0,
+                    user: null
+                };
+
+                $.ajax({
+                    url: "/Reply/Create",
+                    type: "POST",
+                    data: JSON.stringify(reply),
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        location.reload();
+                    },
+                    error: function (data) {
+                        alert("댓글 등록에 실패했습니다.");
+                    }
+                });
+            });
         });
 
         $(".summernote").summernote({
             minHeight: null,
             maxHeight: null,
             focus: true,
+            disableResizeEditor: true,
             toolbar: []
         });
 
         $(".summernote").summernote('disable');
     </script>
-}
+    }

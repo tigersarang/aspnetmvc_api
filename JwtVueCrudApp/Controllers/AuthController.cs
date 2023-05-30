@@ -11,6 +11,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
+using CommLibs.Models;
+using CommLibs.Dto;
 
 namespace JwtVueCrudApp.Controllers
 {
@@ -30,7 +32,7 @@ namespace JwtVueCrudApp.Controllers
 
         [AllowAnonymous]
         [HttpPost("register")]
-        public IActionResult Register([FromBody] RegisterModel model)
+        public IActionResult Register([FromBody] LoginDto model)
         {
             if (ModelState.IsValid)
             {
@@ -38,7 +40,7 @@ namespace JwtVueCrudApp.Controllers
                 {
                     return BadRequest("Username already exists");
                 }
-                
+
                 List<Role> roles = _dbContext.Roles.Where(r => model.Roles.Contains(r.Id.ToString())).ToList();
 
                 var user = new User { UserName = model.UserName, Password = BCrypt.Net.BCrypt.HashPassword(model.Password), Roles = roles};
@@ -51,7 +53,7 @@ namespace JwtVueCrudApp.Controllers
 
         [AllowAnonymous]
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginModel model)
+        public async Task<IActionResult> Login([FromBody] LoginDto model)
         {
             _logger.LogWarning("Login Start...");
 
@@ -102,12 +104,12 @@ namespace JwtVueCrudApp.Controllers
         }
 
         [HttpPost("refresh")]
-        public async Task<IActionResult> Refresh(RefreshTokenDto model)
+        public async Task<IActionResult> Refresh(string model)
         {
             if (ModelState.IsValid)
             {
                 // User에 refresh token이 있는지 확인. 그리고 refresh token이 만료되지 않았는지 확인.
-                var user = _dbContext.Users.SingleOrDefault(u => u.RefreshToken == model.RefreshToken && u.RefreshTokenExpiry > DateTime.UtcNow);
+                var user = _dbContext.Users.SingleOrDefault(u => u.RefreshToken == model && u.RefreshTokenExpiry > DateTime.UtcNow);
 
                 if (user != null)
                 {
@@ -146,7 +148,7 @@ namespace JwtVueCrudApp.Controllers
                             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                             new Claim(ClaimTypes.Role, string.Join(",", user.Roles.Select(r => r.Name)))
                 }),
-                Expires = DateTime.UtcNow.AddSeconds(20),
+                Expires = DateTime.UtcNow.AddMinutes(30),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
                 Issuer = _configuration["JwtSettings:Issuer"],
                 Audience = _configuration["JwtSettings:Audience"]

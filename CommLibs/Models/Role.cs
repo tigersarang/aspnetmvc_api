@@ -2,16 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace CommLibs.Dto
+namespace CommLibs.Models
 {
-    public class ProductDto
+    public class Role
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public decimal Price { get; set; }
-        public string Content { get; set; }
+        [JsonIgnore]
+
+        public ICollection<User> Users { get; set; }
 
     }
 }
