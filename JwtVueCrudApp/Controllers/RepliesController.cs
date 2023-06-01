@@ -32,6 +32,7 @@ namespace JwtVueCrudApp.Controllers
 
                 _dbContext.Replies.Add(reply);
                 _dbContext.SaveChanges();
+
                 return Ok(reply);
             }
 

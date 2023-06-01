@@ -28,12 +28,12 @@ namespace mvcClient.Controllers
 
             reply.UserId = int.Parse(HttpContext.Session.GetString("UserId"));
             
-            var result = await _apiClient.CreateReply(reply);
-            if (result)
+            Reply result = await _apiClient.CreateReply(reply);
+            if (result != null)
             {
-                return RedirectToAction("Detail", "Product", new { id = reply.ProductId });
+                return Ok(result);
             }
-            return View();
+            return BadRequest();
         }
 
         [HttpPut]
@@ -71,8 +71,8 @@ namespace mvcClient.Controllers
 
             _apiClient.SetAccessToken();
 
-            var product = await _apiClient.DeleteReply(reply.Id);
-            return RedirectToAction("Detail", "Product", new { id = reply.ProductId });
+            var addedReply = await _apiClient.DeleteReply(reply.Id);
+            return Ok(addedReply);
 
         }
     }

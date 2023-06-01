@@ -47,13 +47,42 @@ namespace JwtVueCrudApp.Controllers
         {
             try
             {
-                var product = await _dbContext.Products.Include(r => r.Replies).FirstAsync(p => p.Id == id);
+                var product = await _dbContext.Products.Include(u => u.User).Include(r => r.Replies)
+                    .ThenInclude(u => u.User)
+                    .FirstAsync(p => p.Id == id);
 
-                if (product == null)
+                Product product1 = new Product
+                {
+                    Id = product.Id,
+                    Name = product.Name,
+                    Price = product.Price,
+                    Content = product.Content,
+                    CreatedDate = product.CreatedDate,
+                    UpdatedDate = product.UpdatedDate,
+                    User = new User
+                    {
+                        Id = product.User.Id,
+                        UserName = product.User.UserName
+                    },
+                    Replies = product.Replies.Select(r => new Reply
+                    {
+                        Id = r.Id,
+                        Content = r.Content,
+                        CreatedDate = r.CreatedDate,
+                        User = new User
+                        {
+                            Id = r.User.Id,
+                            UserName = r.User.UserName
+                        }
+                    }).OrderByDescending(o => o.Id).ToList()
+                };
+
+                if (product1 == null)
                 {
                     return NotFound();
                 }
-                return Ok(product);
+
+                return Ok(product1);
             } catch(Exception ex)
             {
                 _logger.LogError(ex, "Error occured while getting product by id");

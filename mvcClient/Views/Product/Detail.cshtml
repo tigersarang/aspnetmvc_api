@@ -20,22 +20,22 @@
     <input type="hidden" id="productId" value="@Model.Id" />
 
     <hr />
-    <dl class="row">
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Price)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Price)
-        </dd>
+    <div class="row border-0">
         <div class="form-control border-0 mt-3">
-            <textarea asp-for="Content" class="form-control summernote"></textarea>
-
+            <textarea asp-for="Content" class="form-control summernote border-0"></textarea>
         </div>
-    </dl>
+        <div class="text-end col">@Html.DisplayFor(model => model.User.UserName) @Html.DisplayFor(model => model.CreatedDate)</div>
+
+    </div>
 </dt>
 <div class="text-center">
-    @Html.ActionLink("Update", "Update", new { id = Model.Id}, new {@class="btn btn-primary"})
-    @Html.ActionLink("Delete", "Delete", new { Model.Id }, new {@class="btn btn-danger"})
+    @if (Context.Session.GetString("UserId") == Model.User.Id.ToString())
+    {
+        @Html.ActionLink("Update", "Update", new { id = Model.Id}, new {@class="btn btn-primary"})
+        <button type="button" class="btn btn-danger" id="btnDelete">Delete</button>
+    }
+
+
     <a href="#" class="btn btn-dark" onclick="history.back()">Back to List</a>
 
 </div>
@@ -55,17 +55,39 @@
 
 <div class="card mt-4 border-0">
     <div class="card-body">
-        <h5 class="card-title">댓글 목록</h5>
 
-        @foreach (var item in Model.Replies)
-        {
-            <!-- 댓글들이 여기에 위치... -->
-            <div class="comment mt-2">
-                <p>@item.Content</p>
-                <button type="button" class="btn btn-danger btn-sm delete-comment" data-comment-id="1">삭제</button>
+        <div class="my-3 p-3 rounded shadow-sm">
+            <h6 class="border-bottom pb-2 mb-0" id="commentList">댓글</h6>
+
+            @foreach (var item in Model.Replies)
+            {
+                <div class="d-flex text-muted pt-3" id="comment-@item.Id">
+                    <div class="pb-3 mb-0 small lh-sm border-bottom w-100">
+                        <div class="d-flex justify-content-between">
+                            <strong class="text-gray-dark">@item.Content</strong>
+                            @if (Context.Session.GetString("UserId") == item.User.Id.ToString())
+                            {
+                                <button type="button" class="badge btn-danger btn-sm delete-comment" data-comment-id="@item.Id">삭제</button>
+                            }
+                        </div>
+                        <span class="d-block">@item.User.UserName @item.CreatedDate</span>
+                    </div>
+                </div>
+
+                <!-- 댓글들이 여기에 위치... -->
+                @*
+            <h5 class="card-title mb-3" id="commentList">댓글 목록</h5>
+
+            <div class="comment mt-2 d-flex justify-content-between align-items-center" id="comment-@item.Id">
+            <p>@item.Content</p>
+
             </div>
-            <!-- 위의 댓글 div를 댓글 수만큼 반복 -->
-        }
+            <div class="text-end">@item.User.UserName @item.CreatedDate</div>
+            *@
+                <!-- 위의 댓글 div를 댓글 수만큼 반복 -->
+            }
+        </div>
+
     </div>
 </div>
 
@@ -94,12 +116,82 @@
                     data: JSON.stringify(reply),
                     contentType: "application/json; charset=utf-8",
                     success: function (data) {
-                        location.reload();
+                        let recvDate = new Date(data.createdDate);
+
+                        let date = new Date();
+                        let hours = date.getHours();
+                        let minutes = date.getMinutes();
+                        let seconds = date.getSeconds();
+
+                        let ampm = hours >= 12 ? '오후' : '오전';
+                        hours = hours % 12;
+                        hours = hours ? hours : 12; // the hour '0' should be '12'
+                        minutes = minutes < 10 ? '0' + minutes : minutes;
+                        seconds = seconds < 10 ? '0' + seconds : seconds;
+
+                        let strTime = ampm + ' ' + hours + ':' + minutes + ':' + seconds;
+
+
+                        let formattedDate = recvDate.getFullYear() + '-'
+                            + String(recvDate.getMonth() + 1).padStart(2, '0') + '-'
+                            + String(recvDate.getDate()).padStart(2, '0') + " "
+                            + strTime
+                            ;
+
+                        $("#commentList").after(
+                            `<div class="d-flex text-muted pt-3" id="comment-${data.id}">
+                                                <div class="pb-3 mb-0 small lh-sm border-bottom w-100">
+                                                    <div class="d-flex justify-content-between">
+                                                        <strong class="text-gray-dark">${data.content}</strong>
+                                                        <button type="button" class="badge btn-danger btn-sm delete-comment" data-comment-id="${data.id}">삭제</button>
+                                                    </div>
+                                                            <span class="d-block">${data.user.userName} ${formattedDate}</span>
+                                                </div>
+                                            </div>`
+                        )
+
+                        //$("#commentList").after(
+                        //    `<div class="comment mt-2 d-flex justify-content-between align-items-center" id="comment-${data.id}">
+                        //                        <p>${data.content}</p>
+                        //                        <button type="button" class="btn btn-danger btn-sm delete-comment" data-comment-id="${data.id}">삭제</button>
+                        //                    </div>`);
                     },
                     error: function (data) {
                         alert("댓글 등록에 실패했습니다.");
                     }
                 });
+            });
+
+            $("#btnDelete").click(function () {
+                var productId = $("#productId").val();
+
+                $.ajax({
+                    url: '/Product/Delete/' + productId,
+                    type: "Delete",
+                    success: function (data) {
+                        location.href = "/Product/Index";
+                    },
+                    error: function (data) {
+                        alert("상품 삭제에 실패했습니다.");
+                    }
+                });
+            });
+
+
+        });
+
+        $(document).on('click', '.delete-comment', function () {
+            var commentId = $(this).data("comment-id");
+
+            $.ajax({
+                url: '/Reply/Delete/' + commentId,
+                type: "Delete",
+                success: function (data) {
+                    $("#comment-" + commentId).remove();
+                },
+                error: function (data) {
+                    alert("댓글 삭제에 실패했습니다.");
+                }
             });
         });
 

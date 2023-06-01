@@ -127,6 +127,7 @@ namespace mvcClient.Controllers
             return View(product);
         }
 
+        [HttpDelete]
         // public IActionResult Delete(int id)
         public async Task<IActionResult> Delete(int id)
         {
@@ -140,8 +141,8 @@ namespace mvcClient.Controllers
 
             _apiClient.SetAccessToken();
 
-            var product = await _apiClient.GetById(id);
-            return View(product);
+            await _apiClient.Delete(id);
+            return Ok();
         }
 
 

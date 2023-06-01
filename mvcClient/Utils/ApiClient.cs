@@ -110,7 +110,9 @@ namespace mvcClient.Utils
         public async Task<Product> GetById(int id)
         {
             var response = await _httpClient.GetAsync($"products/{id}");
-            return await response.Content.ReadFromJsonAsync<Product>();
+            var result = await response.Content.ReadAsStringAsync();
+            Product product = JsonConvert.DeserializeObject<Product>(result);
+            return product;
         }
 
         //public async Task<IActionResult> Create([FromBody] Product product)
@@ -149,10 +151,17 @@ namespace mvcClient.Utils
         }
 
         // jwtvuecrudapp 의 RepliesController의 Create 메서드 대응
-        public async Task<bool> CreateReply(Reply reply)
+        public async Task<Reply?> CreateReply(Reply reply)
         {
             var response = await _httpClient.PostAsJsonAsync("replies", reply);
-            return response.IsSuccessStatusCode;
+
+            if (response.IsSuccessStatusCode)
+            {
+                var addedReply = response.Content.ReadFromJsonAsync<Reply>().Result;
+                return addedReply;
+
+            }
+            return null;
         }
 
         // jwtvuecrudapp 의 RepliesController의 Delete 메서드 대응

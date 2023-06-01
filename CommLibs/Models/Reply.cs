@@ -17,8 +17,9 @@ namespace CommLibs.Models
         [JsonIgnore]
         public Product? Product { get; set; }
         public int UserId { get; set; }
-        [JsonIgnore]
         public User? User { get; set; }
+        
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}")]
         public DateTime? CreatedDate { get; set; } = DateTime.Now;
         public DateTime? UpdatedDate { get; set; } = DateTime.Now;
     }
