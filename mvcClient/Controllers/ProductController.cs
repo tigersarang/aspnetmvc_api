@@ -1,4 +1,5 @@
 ﻿using CommLibs.Dto;
+using CommLibs.Models;
 using Microsoft.AspNetCore.Mvc;
 using mvcClient.Utils;
 
@@ -67,7 +68,7 @@ namespace mvcClient.Controllers
             return View();
         }
         [HttpPost]
-        public async Task<IActionResult> Create(ProductDto product)
+        public async Task<IActionResult> Create(Product product)
         {
             if (_apiClient.IsTokenExpired())
             {
@@ -104,7 +105,7 @@ namespace mvcClient.Controllers
             return View(product);
         }
         [HttpPost]
-        public async Task<IActionResult> Update(int id, ProductDto product)
+        public async Task<IActionResult> Update(int id, Product product)
         {
             if (_apiClient.IsTokenExpired())
             {

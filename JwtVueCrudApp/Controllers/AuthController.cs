@@ -3,13 +3,14 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using BCrypt.Net;
-using JwtVueCrudApp.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.Linq;
 using Microsoft.Extensions.Logging;
+using JwtVueCrudApp.Models;
+using CommLibs.Models;
 
 namespace JwtVueCrudApp.Controllers
 {
@@ -29,7 +30,7 @@ namespace JwtVueCrudApp.Controllers
 
         [AllowAnonymous]
         [HttpPost("register")]
-        public IActionResult Register([FromBody] RegisterModel model)
+        public IActionResult Register([FromBody] User model)
         {
             if (ModelState.IsValid)
             {
@@ -38,7 +39,10 @@ namespace JwtVueCrudApp.Controllers
                     return BadRequest("Username already exists");
                 }
 
-                var user = new User { UserName = model.UserName, Password = BCrypt.Net.BCrypt.HashPassword(model.Password) };
+                Role role = _dbContext.Roles.SingleOrDefault(r => r.Id == model.RoleId);
+
+                var user = new User { UserName = model.UserName, Password = BCrypt.Net.BCrypt.HashPassword(model.Password), Role = role };
+
                 _dbContext.Users.Add(user);
                 _dbContext.SaveChanges();
                 return Ok();
@@ -48,7 +52,7 @@ namespace JwtVueCrudApp.Controllers
 
         [AllowAnonymous]
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginModel model)
+        public async Task<IActionResult> Login([FromBody] User model)
         {
             _logger.LogWarning("Login Start...");
 
@@ -84,12 +88,12 @@ namespace JwtVueCrudApp.Controllers
         }
 
         [HttpPost("refresh")]
-        public async Task<IActionResult> Refresh(RefreshTokenDto model)
+        public async Task<IActionResult> Refresh([FromBody] string model)
         {
             if (ModelState.IsValid)
             {
                 // User에 refresh token이 있는지 확인. 그리고 refresh token이 만료되지 않았는지 확인.
-                var user = _dbContext.Users.SingleOrDefault(u => u.RefreshToken == model.RefreshToken && u.RefreshTokenExpiry > DateTime.UtcNow);
+                var user = _dbContext.Users.SingleOrDefault(u => u.RefreshToken == model && u.RefreshTokenExpiry > DateTime.UtcNow);
 
                 if (user != null)
                 {
@@ -102,6 +106,14 @@ namespace JwtVueCrudApp.Controllers
                 }
             }
             return BadRequest(ModelState);
+        }
+
+        [AllowAnonymous]
+        [HttpGet("roles")]
+        public IActionResult Roles()
+        {
+            var roles = _dbContext.Roles.ToList();
+            return Ok(roles);
         }
 
         private string GenerateRefreshToken()

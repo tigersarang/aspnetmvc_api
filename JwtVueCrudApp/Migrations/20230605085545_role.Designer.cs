@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace JwtVueCrudApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230528034621_init")]
-    partial class init
+    [Migration("20230605085545_role")]
+    partial class role
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,7 +25,7 @@ namespace JwtVueCrudApp.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("JwtVueCrudApp.Models.Product", b =>
+            modelBuilder.Entity("CommLibs.Models.Product", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -50,7 +50,24 @@ namespace JwtVueCrudApp.Migrations
                     b.ToTable("Products");
                 });
 
-            modelBuilder.Entity("JwtVueCrudApp.Models.User", b =>
+            modelBuilder.Entity("CommLibs.Models.Role", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Roles");
+                });
+
+            modelBuilder.Entity("CommLibs.Models.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -68,6 +85,9 @@ namespace JwtVueCrudApp.Migrations
                     b.Property<DateTime?>("RefreshTokenExpiry")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("RoleId")
+                        .HasColumnType("int");
+
                     b.Property<string>("UserName")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -75,7 +95,25 @@ namespace JwtVueCrudApp.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("RoleId");
+
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("CommLibs.Models.User", b =>
+                {
+                    b.HasOne("CommLibs.Models.Role", "Role")
+                        .WithMany("Users")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Role");
+                });
+
+            modelBuilder.Entity("CommLibs.Models.Role", b =>
+                {
+                    b.Navigation("Users");
                 });
 #pragma warning restore 612, 618
         }

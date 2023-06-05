@@ -1,4 +1,5 @@
 ﻿using CommLibs.Dto;
+using CommLibs.Models;
 using Microsoft.AspNetCore.Mvc;
 using mvcClient.Utils;
 using Newtonsoft.Json;
@@ -52,14 +53,17 @@ namespace mvcClient.Controllers
             }
         }
         [HttpGet]
-        public IActionResult Register()
+        public async Task<IActionResult> Register()
         {
-            return View();
+            // getRoles()를 호출하여 role을 가져온다.
+            var roles = await _apiClient.GetRoles();
+
+            return View(roles);
         }
         [HttpPost]
-        public async Task<IActionResult> Register(string userName, string password)
+        public async Task<IActionResult> Register(User user)
         {
-            var response = await _apiClient.Register(userName, password);
+            var response = await _apiClient.Register(user);
             if (response.IsSuccessStatusCode)
             {
                 return RedirectToAction("Login");

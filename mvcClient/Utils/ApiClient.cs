@@ -1,6 +1,6 @@
 ﻿using CommLibs.Dto;
+using CommLibs.Models;
 using Microsoft.AspNetCore.Mvc;
-using mvcClient.Dto;
 using Newtonsoft.Json;
 using System.Net.Http.Headers;
 
@@ -18,17 +18,16 @@ namespace mvcClient.Utils
         }
 
         // JwtVueCrudApp의 AuthController.cs의 public IActionResult Register([FromBody] RegisterModel model)과 대응
-        public async Task<HttpResponseMessage> Register(string username, string password)
+        public async Task<HttpResponseMessage> Register(User user)
         {
-            var model = new UserDto { UserName = username, Password = password };
-            var response = await _httpClient.PostAsJsonAsync("auth/register", model);
+            var response = await _httpClient.PostAsJsonAsync("auth/register", user);
             return response;
         }
 
         // JwtVueCrudApp의 AuthController.cs의 public async Task<IActionResult> Login([FromBody] LoginModel model)과 대응
         public async Task<HttpResponseMessage> Login(string username, string password)
         {
-            var model = new UserDto { UserName = username, Password = password };
+            var model = new User { UserName = username, Password = password };
             var response = await _httpClient.PostAsJsonAsync("auth/login", model);
             return response;
         }
@@ -66,12 +65,7 @@ namespace mvcClient.Utils
                 return false;
             }
 
-            var requestData = new Dictionary<string, string>
-            {
-                {"refreshToken", refreshToken }
-            };
-
-            var response = await _httpClient.PostAsJsonAsync("auth/refresh", requestData);
+            var response = await _httpClient.PostAsJsonAsync("auth/refresh", refreshToken);
             if (response.IsSuccessStatusCode)
             {
                 var result = await response.Content.ReadAsStringAsync();
@@ -86,7 +80,7 @@ namespace mvcClient.Utils
         // jwtvuecrudapp의 ProductsController의 모든 메서드 대응
 
         //public async Task<IActionResult> GetAll([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string search = null)
-        public async Task<PagedResult<ProductDto>> GetAll(int pageNumber = 1, int pageSize = 10, string search = null)
+        public async Task<PagedResult<Product>> GetAll(int pageNumber = 1, int pageSize = 10, string search = null)
         {
             var response = await _httpClient.GetAsync($"products?pageNumber={pageNumber}&pageSize={pageSize}&search={search}");
 
@@ -96,33 +90,33 @@ namespace mvcClient.Utils
             }
 
             // 성공했을 때 리턴값을 PageResult<ProdcutDto>로 받음
-            var result = response.Content.ReadFromJsonAsync<PagedResult<ProductDto>>().Result;
+            var result = response.Content.ReadFromJsonAsync<PagedResult<Product>>().Result;
 
             if (result.Items == null)
             {
-                result.Items = new List<ProductDto>();
+                result.Items = new List<Product>();
             }
             return result;
         }
 
         //public async Task<IActionResult> GetById(int id)
-        public async Task<ProductDto> GetById(int id)
+        public async Task<Product> GetById(int id)
         {
             var response = await _httpClient.GetAsync($"products/{id}");
-            return await response.Content.ReadFromJsonAsync<ProductDto>();
+            return await response.Content.ReadFromJsonAsync<Product>();
         }
 
-        //public async Task<IActionResult> Create([FromBody] ProductDto productDto)
-        public async Task<bool> Create(ProductDto productDto)
+        //public async Task<IActionResult> Create([FromBody] Product product)
+        public async Task<bool> Create(Product product)
         {
-            var response = await _httpClient.PostAsJsonAsync("products", productDto);
+            var response = await _httpClient.PostAsJsonAsync("products", product);
             return response.IsSuccessStatusCode;
         }
 
-        //public async Task<IActionResult> Update(int id, [FromBody] ProductDto productDto)
-        public async Task<bool> Update(int id, ProductDto productDto)
+        //public async Task<IActionResult> Update(int id, [FromBody] Product product)
+        public async Task<bool> Update(int id, Product product)
         {
-            var response = await _httpClient.PutAsJsonAsync($"products/{id}", productDto);
+            var response = await _httpClient.PutAsJsonAsync($"products/{id}", product);
             return response.IsSuccessStatusCode;
         }
 
@@ -133,6 +127,12 @@ namespace mvcClient.Utils
             return response.IsSuccessStatusCode;
         }
 
+        // getRoles 메서드 추가
+        public async Task<List<Role>> GetRoles()
+        {
+            var response = await _httpClient.GetAsync("auth/roles");
+            return await response.Content.ReadFromJsonAsync<List<Role>>();
+        }
 
     }
 }

@@ -27,4 +27,8 @@
     <ProjectReference Include="..\CommLibs\CommLibs.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="InitData\" />
+  </ItemGroup>
+
 </Project>

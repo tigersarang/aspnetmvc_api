@@ -1,4 +1,6 @@
-﻿@{
+﻿@model List<CommLibs.Models.Role>
+
+@{
     ViewData["Title"] = "Register";
 }
 
@@ -13,6 +15,16 @@
         <label for="password">Password</label>
         <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
     </div>
+
+    <label for="Roles">Roles</label>
+
+    @foreach (var role in Model)
+    {
+        <div class="checkbox">
+            <label>
+                <input type="radio" name="roles" value="@role.Id" /> @role.Name</label>
+        </div>
+    }
 
     <div class="alert-danger">
         @Html.ValidationSummary()
