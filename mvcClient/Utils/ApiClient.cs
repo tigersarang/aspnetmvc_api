@@ -134,5 +134,18 @@ namespace mvcClient.Utils
             return await response.Content.ReadFromJsonAsync<List<Role>>();
         }
 
+        public async Task<string?> GetAdminAction()
+        {
+            // AdminAction을 가져오는 API 호출
+            var response = await _httpClient.GetAsync("Admin/adminaction");
+
+            // 성공이면
+            if (response.IsSuccessStatusCode)
+            {
+                // 결과를 string으로 변환해서 리턴
+                return await response.Content.ReadAsStringAsync();
+            }
+            return null;
+        }
     }
 }

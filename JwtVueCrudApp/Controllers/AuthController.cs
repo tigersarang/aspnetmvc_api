@@ -11,6 +11,7 @@ using System.Linq;
 using Microsoft.Extensions.Logging;
 using JwtVueCrudApp.Models;
 using CommLibs.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace JwtVueCrudApp.Controllers
 {
@@ -40,7 +41,7 @@ namespace JwtVueCrudApp.Controllers
                 }
 
                 Role role = _dbContext.Roles.SingleOrDefault(r => r.Id == model.RoleId);
-
+                
                 var user = new User { UserName = model.UserName, Password = BCrypt.Net.BCrypt.HashPassword(model.Password), Role = role };
 
                 _dbContext.Users.Add(user);
@@ -61,7 +62,7 @@ namespace JwtVueCrudApp.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    var user = _dbContext.Users.SingleOrDefault(u => u.UserName == model.UserName);
+                    var user = _dbContext.Users.Include(u => u.Role).SingleOrDefault(u => u.UserName == model.UserName);
 
                     if (user != null && BCrypt.Net.BCrypt.Verify(model.Password, user.Password))
                     {
@@ -130,9 +131,10 @@ namespace JwtVueCrudApp.Controllers
                 Subject = new ClaimsIdentity(new Claim[]
                 {
                             new Claim(ClaimTypes.Name, user.UserName),
-                            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
+                            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                            new Claim(ClaimTypes.Role, user.Role.Name)
                 }),
-                Expires = DateTime.UtcNow.AddSeconds(20),
+                Expires = DateTime.UtcNow.AddHours(1),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
                 Issuer = _configuration["JwtSettings:Issuer"],
                 Audience = _configuration["JwtSettings:Audience"]

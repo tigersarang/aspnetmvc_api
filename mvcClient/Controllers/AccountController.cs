@@ -7,6 +7,7 @@ using System.IdentityModel.Tokens.Jwt;
 
 namespace mvcClient.Controllers
 {
+    [Route("[controller]/[action]")]
     public class AccountController : Controller
     {
         private readonly ApiClient _apiClient;
@@ -36,9 +37,16 @@ namespace mvcClient.Controllers
                     var result = await response.Content.ReadAsStringAsync();
                     var token = JsonConvert.DeserializeObject<TokenDto>(result);
 
+                    JwtDecoder.GetClaims(token.Token).ToList().ForEach(c =>
+                    {
+                        if (c.Type == "role") HttpContext.Session.SetString(c.Type, c.Value);
+                        else if (c.Type == "nameId") HttpContext.Session.SetString("UserId", c.Value);
+                    });
+
                     HttpContext.Session.SetString("AccessToken", token.Token);
                     HttpContext.Session.SetString("TokenExpiration", JwtDecoder.GetExpirationDate(token.Token).ToString());
                     HttpContext.Session.SetString("refreshToken", token.RefreshToken);
+                    HttpContext.Session.SetString("UserName", userName);
                     return RedirectToAction("Index", "Home");
                 }
 
@@ -63,14 +71,26 @@ namespace mvcClient.Controllers
         [HttpPost]
         public async Task<IActionResult> Register(User user)
         {
-            var response = await _apiClient.Register(user);
-            if (response.IsSuccessStatusCode)
+            try
             {
-                return RedirectToAction("Login");
-            }
+                var response = await _apiClient.Register(user);
+                if (response.IsSuccessStatusCode)
+                {
+                    return RedirectToAction("Login");
+                }
 
-            ModelState.AddModelError("", "회원가입에 실패하였습니다.");
-            return View();
+                var roles = await _apiClient.GetRoles();
+                ModelState.AddModelError("", "회원가입에 실패하였습니다.");
+                _logger.LogError("회원가입에 실패하였습니다.");
+                return View(roles);
+            } catch (Exception ex)
+            {
+                var roles = await _apiClient.GetRoles();
+                _logger.LogError(ex, "회원가입에 실패하였습니다.");
+                ModelState.AddModelError("", ex.Message);
+
+                return View(roles);
+            }
         }
         [HttpGet("Logout")]
         public IActionResult Logout()
