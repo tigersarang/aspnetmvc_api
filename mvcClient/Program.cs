@@ -1,6 +1,15 @@
 using mvcClient.Utils;
+using Serilog;
+using System.Net.Security;
 
 var builder = WebApplication.CreateBuilder(args);
+
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .WriteTo.File("c:/JwtLogs/client/log.txt", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
+
+builder.Host.UseSerilog();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -16,9 +25,9 @@ builder.Services.AddSession(options =>
 
 builder.Services.AddHttpClient<ApiClient>(client =>
 {
-    client.BaseAddress = new Uri("https://localhost:7009/api/");
+    client.BaseAddress = new Uri("http://localhost:11000/api/");
 });
-   
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

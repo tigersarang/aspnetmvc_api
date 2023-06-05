@@ -9,9 +9,12 @@ namespace mvcClient.Controllers
     public class AccountController : Controller
     {
         private readonly ApiClient _apiClient;
-        public AccountController(ApiClient apiClient)
+        private readonly ILogger<AccountController> _logger;
+
+        public AccountController(ApiClient apiClient, ILogger<AccountController> logger)
         {
             _apiClient = apiClient;
+            _logger = logger;
         }
         // login, logout, register, etc.
         [HttpGet]
@@ -22,22 +25,31 @@ namespace mvcClient.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(string userName, string password)
         {
-            // JwtVueCrudApp에서 AuthController.cs의 public async Task<IActionResult> Login([FromBody] LoginModel model)과 대응.
-            // token, refreshToken을 받아온다.그리고 session에 저장한다.
-            var response = await _apiClient.Login(userName, password);
-            if (response.IsSuccessStatusCode)
+            try
             {
-                var result = await response.Content.ReadAsStringAsync();
-                var token = JsonConvert.DeserializeObject<TokenDto>(result);
+                // JwtVueCrudApp에서 AuthController.cs의 public async Task<IActionResult> Login([FromBody] LoginModel model)과 대응.
+                // token, refreshToken을 받아온다.그리고 session에 저장한다.
+                var response = await _apiClient.Login(userName, password);
+                if (response.IsSuccessStatusCode)
+                {
+                    var result = await response.Content.ReadAsStringAsync();
+                    var token = JsonConvert.DeserializeObject<TokenDto>(result);
 
-                HttpContext.Session.SetString("AccessToken", token.Token);
-                HttpContext.Session.SetString("TokenExpiration", JwtDecoder.GetExpirationDate(token.Token).ToString());
-                HttpContext.Session.SetString("refreshToken", token.RefreshToken);
-                return RedirectToAction("Index", "Home");
+                    HttpContext.Session.SetString("AccessToken", token.Token);
+                    HttpContext.Session.SetString("TokenExpiration", JwtDecoder.GetExpirationDate(token.Token).ToString());
+                    HttpContext.Session.SetString("refreshToken", token.RefreshToken);
+                    return RedirectToAction("Index", "Home");
+                }
+
+                ModelState.AddModelError("", "로그인에 실패하였습니다.");
+                return View();
+            } catch(Exception ex)
+            {
+                _logger.LogError(ex, "로그인에 실패하였습니다.");
+                ModelState.AddModelError("", ex.Message);
+                
+                return View();
             }
-
-            ModelState.AddModelError("", "로그인에 실패하였습니다.");
-            return View();
         }
         [HttpGet]
         public IActionResult Register()
