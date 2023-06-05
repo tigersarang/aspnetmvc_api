@@ -137,8 +137,8 @@ namespace mvcClient.Controllers
 
             _apiClient.SetAccessToken();
 
-            var product = await _apiClient.GetById(id);
-            return View(product);
+            var product = await _apiClient.Delete(id);
+            return RedirectToAction("Index", "Product");
         }
 
 
