@@ -6,7 +6,7 @@
 
 <h1>Detail</h1>
 
-<dt>
+<div>
     <h4>Product</h4>
     <hr />
     <dl class="row">
@@ -30,12 +30,44 @@
 
         </div>
     </dl>
-</div>
-<div class="text-center">
-    @Html.ActionLink("Update", "Update", new { id = Model.Id}, new {@class="btn btn-primary"})
-    @Html.ActionLink("Delete", "Delete", new { Model.Id }, new {@class="btn btn-danger"})
-    <a href="#" class="btn btn-dark" onclick="history.back()">Back to List</a>
 
+    <div class="text-center">
+        @Html.ActionLink("Update", "Update", new { id = Model.Id}, new {@class="btn btn-primary"})
+        @Html.ActionLink("Delete", "Delete", new { Model.Id }, new {@class="btn btn-danger"})
+        <a href="#" class="btn btn-dark" onclick="history.back()">Back to List</a>
+    </div>
+
+    <div class="card mt-3">
+        <div class="card-header">
+            댓글 쓰기
+        </div>
+        <div class="card-body">
+            <textarea id="content" class="form-control" rows="3"></textarea>
+        </div>
+    </div>
+    <div class="mt-auto text-end">
+        <button class="btn btn-primary" id="btnReply">저장</button>
+    </div>
+</div>
+
+
+<div class="my-3 p-3 rounded shadow-sm">
+    <h6 class="border-bottom pb-2 mb-0" id="comment-list">댓글 목록</h6>
+
+    @foreach (var item in Model.Replies)
+    {
+
+        <div class="d-flex text-muted pt-3" id="comment-@item.Id">
+
+            <div class="pb-3 mb-0 small lh-sm border-bottom w-100">
+                <div class="d-flex justify-content-between">
+                    <strong class="text-gray-dark">@item.Content</strong>
+                    <button class="badge btn-danger" id="btnReplyDelete" data-comment-id="@item.Id">삭제</button>
+                </div>
+                <span class="d-block text-end">@item.User.UserName, @item.CreatedAt?.ToString("yyyy-MM-dd")</span>
+            </div>
+        </div>
+    }
 
 </div>
 
@@ -46,6 +78,61 @@
     <script>
         $(document).ready(function () {
             $('.summernote').summernote();
+
+            $("#btnReply").click(function () {
+                let reply = {
+                    id: 0,
+                    content: $("#content").val(),
+                    productId: @Model.Id
+
+                                };
+
+                $.ajax({
+                    url: "/Reply/Create",
+                    type: "POST",
+                    data: JSON.stringify(reply),
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        // #comment-list에 reply를 추가한다.
+                        var createDate = new Date(data.createdAt);
+                        var convDate = createDate.getFullYear() + "-" +
+                                        String(createDate.getMonth() + 1).padStart(2,'0') + "-" +
+                                        String(createDate.getDate()).padStart(2, '0');
+
+                        $("#comment-list").after(
+                            `
+                            <div class="d-flex text-muted pt-3" id="comment-${data.id}">
+
+                                <div class="pb-3 mb-0 small lh-sm border-bottom w-100">
+                                    <div class="d-flex justify-content-between">
+                                        <strong class="text-gray-dark">${data.content}</strong>
+                                           <button class="badge btn-danger" id="btnReplyDelete" data-comment-id="${data.id}">삭제</button>
+                                    </div>
+                                            <span class="d-block text-end">${data.user.userName}, ${convDate}</span>
+                                </div>
+                            </div>
+                                            `
+                        );
+                    },
+                    error: function (e) {
+                        alert(e.responseText);
+                    }
+                });
+            });
+
+            $(document).on('click', '#btnReplyDelete', function() {
+                var commentId = $(this).data("comment-id");
+
+                $.ajax({
+                    url: '/Reply/Delete/' + commentId,
+                    type: 'Delete',
+                    success: function(data) {
+                        $("#comment-" + commentId).remove();
+                    }, error : function(data) {
+                        alert(data);
+                    }
+                });
+            });
         });
 
         $(".summernote").summernote({

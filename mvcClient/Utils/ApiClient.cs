@@ -147,5 +147,17 @@ namespace mvcClient.Utils
             }
             return null;
         }
+
+        // Reply 작업
+        public async Task<Reply?> CreateReply(Reply reply)
+        {
+            var response = await _httpClient.PostAsJsonAsync("replies", reply);
+            return await response.Content.ReadFromJsonAsync<Reply>();
+        }
+        public async Task<bool> DeleteReply(int id)
+        {
+            var response = await _httpClient.DeleteAsync($"replies/{id}");
+            return response.IsSuccessStatusCode;
+        }
     }
 }

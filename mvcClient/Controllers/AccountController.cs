@@ -40,7 +40,7 @@ namespace mvcClient.Controllers
                     JwtDecoder.GetClaims(token.Token).ToList().ForEach(c =>
                     {
                         if (c.Type == "role") HttpContext.Session.SetString(c.Type, c.Value);
-                        else if (c.Type == "nameId") HttpContext.Session.SetString("UserId", c.Value);
+                        else if (c.Type == "nameid") HttpContext.Session.SetString("UserId", c.Value);
                     });
 
                     HttpContext.Session.SetString("AccessToken", token.Token);

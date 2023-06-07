@@ -43,11 +43,14 @@ namespace JwtVueCrudApp.Controllers
         [HttpGet("{id}")]
         public IActionResult GetById(int id)
         {
-            var product = _dbContext.Products.FirstOrDefault(p => p.Id == id);
+            var product = _dbContext.Products.Include(u => u.User).FirstOrDefault(p => p.Id == id);
             if (product == null)
             {
                 return NotFound();
             }
+
+            var replies = _dbContext.Replies.Include(ru => ru.User).Where(r => r.ProductId == id).OrderByDescending(o => o.Id).ToList();
+            product.Replies = replies;
             return Ok(product);
         }
 
