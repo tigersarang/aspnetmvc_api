@@ -87,21 +87,6 @@ namespace JwtVueCrudApp.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        // get : /api/auth/Roles
-        [AllowAnonymous]
-        [HttpGet("Roles")]
-        public IActionResult GetRoles()
-        {
-            var roles = _dbContext.Roles.ToList();
-            return Ok(roles);
-        }
-
-        [HttpGet("GetUserRoles")]
-        public IActionResult GetUserRoles()
-        {
-            var user = _dbContext.Users.Include(u => u.Roles).SingleOrDefault(u => u.UserName == User.Identity.Name);
-            return Ok(user.Roles);
-        }
 
         [HttpPost("refresh")]
         public async Task<IActionResult> Refresh([FromBody] string model)

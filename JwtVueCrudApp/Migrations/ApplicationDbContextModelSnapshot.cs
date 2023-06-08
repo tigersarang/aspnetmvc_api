@@ -39,10 +39,14 @@ namespace JwtVueCrudApp.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<int?>("UserId")
                         .HasColumnType("int");
@@ -132,7 +136,8 @@ namespace JwtVueCrudApp.Migrations
 
                     b.Property<string>("UserName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("Id");
 
@@ -144,7 +149,7 @@ namespace JwtVueCrudApp.Migrations
             modelBuilder.Entity("CommLibs.Models.Product", b =>
                 {
                     b.HasOne("CommLibs.Models.User", "User")
-                        .WithMany()
+                        .WithMany("Products")
                         .HasForeignKey("UserId");
 
                     b.Navigation("User");
@@ -187,6 +192,11 @@ namespace JwtVueCrudApp.Migrations
             modelBuilder.Entity("CommLibs.Models.Role", b =>
                 {
                     b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("CommLibs.Models.User", b =>
+                {
+                    b.Navigation("Products");
                 });
 #pragma warning restore 612, 618
         }
