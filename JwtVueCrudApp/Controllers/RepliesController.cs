@@ -20,9 +20,11 @@ namespace JwtVueCrudApp.Controllers
             _dbContext = dbContext;
         }
 
+        // POST: api/products
         [HttpPost]
         public IActionResult Create([FromBody] Reply reply)
         {
+            // Models.Reply Create. 
             if (ModelState.IsValid)
             {
                 reply.User = _dbContext.Users.FirstOrDefault(u => u.Id == reply.UserId);
@@ -30,6 +32,7 @@ namespace JwtVueCrudApp.Controllers
 
                 _dbContext.Replies.Add(reply);
                 _dbContext.SaveChanges();
+
                 return Ok(reply);
             }
             ModelState.AddModelError("", "Some error occured");
@@ -50,5 +53,6 @@ namespace JwtVueCrudApp.Controllers
             _dbContext.SaveChanges();
             return NoContent();
         }
+
     }
 }

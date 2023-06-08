@@ -4,6 +4,7 @@ using JwtVueCrudApp.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace JwtVueCrudApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230530130033_newinit")]
+    partial class newinit
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -44,6 +47,9 @@ namespace JwtVueCrudApp.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<int?>("UserId")
                         .HasColumnType("int");
 
@@ -66,23 +72,21 @@ namespace JwtVueCrudApp.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("CreatedAt")
+                    b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("ProductId")
+                    b.Property<int>("ProductId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ProductId1")
-                        .HasColumnType("int");
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("datetime2");
 
-                    b.Property<int?>("UserId")
+                    b.Property<int>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ProductId");
-
-                    b.HasIndex("ProductId1");
 
                     b.HasIndex("UserId");
 
@@ -136,15 +140,28 @@ namespace JwtVueCrudApp.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("RoleId");
-
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("RoleUser", b =>
+                {
+                    b.Property<int>("RolesId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UsersId")
+                        .HasColumnType("int");
+
+                    b.HasKey("RolesId", "UsersId");
+
+                    b.HasIndex("UsersId");
+
+                    b.ToTable("RoleUser");
                 });
 
             modelBuilder.Entity("CommLibs.Models.Product", b =>
                 {
                     b.HasOne("CommLibs.Models.User", "User")
-                        .WithMany()
+                        .WithMany("Products")
                         .HasForeignKey("UserId");
 
                     b.Navigation("User");
@@ -152,31 +169,36 @@ namespace JwtVueCrudApp.Migrations
 
             modelBuilder.Entity("CommLibs.Models.Reply", b =>
                 {
-                    b.HasOne("CommLibs.Models.Product", null)
+                    b.HasOne("CommLibs.Models.Product", "Product")
                         .WithMany("Replies")
                         .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("CommLibs.Models.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId1");
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("CommLibs.Models.User", "User")
                         .WithMany()
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Product");
 
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("CommLibs.Models.User", b =>
+            modelBuilder.Entity("RoleUser", b =>
                 {
-                    b.HasOne("CommLibs.Models.Role", "Role")
-                        .WithMany("Users")
-                        .HasForeignKey("RoleId");
+                    b.HasOne("CommLibs.Models.Role", null)
+                        .WithMany()
+                        .HasForeignKey("RolesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Navigation("Role");
+                    b.HasOne("CommLibs.Models.User", null)
+                        .WithMany()
+                        .HasForeignKey("UsersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("CommLibs.Models.Product", b =>
@@ -184,9 +206,9 @@ namespace JwtVueCrudApp.Migrations
                     b.Navigation("Replies");
                 });
 
-            modelBuilder.Entity("CommLibs.Models.Role", b =>
+            modelBuilder.Entity("CommLibs.Models.User", b =>
                 {
-                    b.Navigation("Users");
+                    b.Navigation("Products");
                 });
 #pragma warning restore 612, 618
         }

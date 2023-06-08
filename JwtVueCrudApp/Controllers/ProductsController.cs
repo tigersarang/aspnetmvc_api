@@ -14,10 +14,12 @@ namespace JwtVueCrudApp.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly ApplicationDbContext _dbContext;
+        private readonly ILogger<ProductsController> _logger;
 
-        public ProductsController(ApplicationDbContext dbContext)
+        public ProductsController(ApplicationDbContext dbContext, ILogger<ProductsController> logger)
         {
             _dbContext = dbContext;
+            _logger = logger;
         }
 
         // GET: api/products
@@ -30,7 +32,7 @@ namespace JwtVueCrudApp.Controllers
 
             if (!string.IsNullOrEmpty(search))
             {
-                query = query.Where(p => p.Name.Contains(search));
+                query = query.Where(p => p.Name.Contains(search)).AsNoTracking();
             }
 
             var pagedResult = await query.Include(u => u.User).OrderByDescending(p => p.Id).ToPagedResultAsync(pageNumber, pageSize);
@@ -82,6 +84,7 @@ namespace JwtVueCrudApp.Controllers
                 product.Name = updatedProduct.Name;
                 product.Price = updatedProduct.Price;
                 product.Content = updatedProduct.Content;
+                product.UpdatedDate = DateTime.Now;
 
                 await _dbContext.SaveChangesAsync();
                 return NoContent();

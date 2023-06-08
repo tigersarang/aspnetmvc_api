@@ -36,6 +36,12 @@
             <th class="col-1">
                 Price
             </th>
+            <th class="col-2">
+                Register
+            </th>
+            <th class="col-2">
+                RegistDate
+            </th>
         </tr>
     </thead>
     <tbody>
@@ -53,6 +59,12 @@
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Price)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.User.UserName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CreatedDate)
                 </td>
             </tr>
         }

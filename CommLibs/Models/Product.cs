@@ -1,4 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CommLibs.Models
@@ -22,6 +26,11 @@ namespace CommLibs.Models
 
         public int? UserId { get; set; }
         public User? User { get; set; }
+
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}")]
+        public DateTime? CreatedDate { get; set; } = DateTime.Now;
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}")]
+        public DateTime? UpdatedDate { get; set; } = DateTime.Now;
 
     }
 }

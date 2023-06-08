@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using mvcClient.Utils;
 using Newtonsoft.Json;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace mvcClient.Controllers
 {
@@ -18,6 +19,7 @@ namespace mvcClient.Controllers
             _apiClient = apiClient;
             _logger = logger;
         }
+
         // login, logout, register, etc.
         [HttpGet]
         public IActionResult Login()
