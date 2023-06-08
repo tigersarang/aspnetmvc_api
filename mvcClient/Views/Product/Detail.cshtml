@@ -4,6 +4,16 @@
     ViewData["Title"] = "Detail";
 }
 
+<style>
+    .note-editor.note-airframe .note-editing-area .note-editable[contenteditable=false],
+    .note-editor.note-frame .note-editing-area .note-editable[contenteditable=false] {
+        background-color: #fff; /* 흰색 배경 */
+    }
+
+    .note-statusbar {
+        display: none;
+    }
+</style>
 <h1>Detail</h1>
 
 <div>
@@ -25,15 +35,19 @@
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Content)
         </dt>
-        <div class="form-control">
+        <div class="form-control border-0">
             <textarea asp-for="Content" class="form-control summernote"></textarea>
 
         </div>
     </dl>
 
     <div class="text-center">
-        @Html.ActionLink("Update", "Update", new { id = Model.Id}, new {@class="btn btn-primary"})
-        @Html.ActionLink("Delete", "Delete", new { Model.Id }, new {@class="btn btn-danger"})
+        @if (Model.User.Id.ToString() == Context.Session.GetString("UserId"))
+        {
+            @Html.ActionLink("Update", "Update", new { id = Model.Id}, new {@class="btn btn-primary me-1"})
+            @Html.ActionLink("Delete", "Delete", new { Model.Id }, new {@class="btn btn-danger"})
+        }
+
         <a href="#" class="btn btn-dark" onclick="history.back()">Back to List</a>
     </div>
 
@@ -62,7 +76,12 @@
             <div class="pb-3 mb-0 small lh-sm border-bottom w-100">
                 <div class="d-flex justify-content-between">
                     <strong class="text-gray-dark">@item.Content</strong>
-                    <button class="badge btn-danger" id="btnReplyDelete" data-comment-id="@item.Id">삭제</button>
+
+                    @if (item.UserId.ToString() == Context.Session.GetString("UserId"))
+                    {
+                        <button class="badge btn-danger" id="btnReplyDelete" data-comment-id="@item.Id">삭제</button>
+                    }
+
                 </div>
                 <span class="d-block text-end">@item.User.UserName, @item.CreatedAt?.ToString("yyyy-MM-dd")</span>
             </div>
@@ -85,7 +104,7 @@
                     content: $("#content").val(),
                     productId: @Model.Id
 
-                                };
+                                                };
 
                 $.ajax({
                     url: "/Reply/Create",
@@ -96,22 +115,22 @@
                         // #comment-list에 reply를 추가한다.
                         var createDate = new Date(data.createdAt);
                         var convDate = createDate.getFullYear() + "-" +
-                                        String(createDate.getMonth() + 1).padStart(2,'0') + "-" +
-                                        String(createDate.getDate()).padStart(2, '0');
+                            String(createDate.getMonth() + 1).padStart(2, '0') + "-" +
+                            String(createDate.getDate()).padStart(2, '0');
 
                         $("#comment-list").after(
                             `
-                            <div class="d-flex text-muted pt-3" id="comment-${data.id}">
+                                            <div class="d-flex text-muted pt-3" id="comment-${data.id}">
 
-                                <div class="pb-3 mb-0 small lh-sm border-bottom w-100">
-                                    <div class="d-flex justify-content-between">
-                                        <strong class="text-gray-dark">${data.content}</strong>
-                                           <button class="badge btn-danger" id="btnReplyDelete" data-comment-id="${data.id}">삭제</button>
-                                    </div>
-                                            <span class="d-block text-end">${data.user.userName}, ${convDate}</span>
-                                </div>
-                            </div>
-                                            `
+                                                <div class="pb-3 mb-0 small lh-sm border-bottom w-100">
+                                                    <div class="d-flex justify-content-between">
+                                                        <strong class="text-gray-dark">${data.content}</strong>
+                                                           <button class="badge btn-danger" id="btnReplyDelete" data-comment-id="${data.id}">삭제</button>
+                                                    </div>
+                                                            <span class="d-block text-end">${data.user.userName}, ${convDate}</span>
+                                                </div>
+                                            </div>
+                                                            `
                         );
                     },
                     error: function (e) {
@@ -120,15 +139,15 @@
                 });
             });
 
-            $(document).on('click', '#btnReplyDelete', function() {
+            $(document).on('click', '#btnReplyDelete', function () {
                 var commentId = $(this).data("comment-id");
 
                 $.ajax({
                     url: '/Reply/Delete/' + commentId,
                     type: 'Delete',
-                    success: function(data) {
+                    success: function (data) {
                         $("#comment-" + commentId).remove();
-                    }, error : function(data) {
+                    }, error: function (data) {
                         alert(data);
                     }
                 });

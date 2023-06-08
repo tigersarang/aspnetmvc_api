@@ -30,6 +30,9 @@
             <th>
                 Name
             </th>
+            <th>
+                UserName
+            </th>
             <th class="col-1">
                 Price
             </th>
@@ -44,6 +47,9 @@
                 </td>
                 <td>
                     @Html.ActionLink(item.Name, "Detail", new { id = item.Id }, new {@class="text-decoration-none"})
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.User.UserName)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Price)

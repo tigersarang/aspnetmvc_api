@@ -33,7 +33,7 @@ namespace JwtVueCrudApp.Controllers
                 query = query.Where(p => p.Name.Contains(search));
             }
 
-            var pagedResult = await query.OrderByDescending(p => p.Id).ToPagedResultAsync(pageNumber, pageSize);
+            var pagedResult = await query.Include(u => u.User).OrderByDescending(p => p.Id).ToPagedResultAsync(pageNumber, pageSize);
 
             return Ok(pagedResult);
 

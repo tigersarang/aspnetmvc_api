@@ -80,6 +80,7 @@ namespace mvcClient.Controllers
 
             _apiClient.SetAccessToken();
 
+            product.UserId = int.Parse(HttpContext.Session.GetString("UserId"));
             var result = await _apiClient.Create(product);
             if (result)
             {
