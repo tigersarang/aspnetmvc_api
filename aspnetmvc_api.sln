@@ -5,9 +5,11 @@ VisualStudioVersion = 17.5.33530.505
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JwtVueCrudApp", "JwtVueCrudApp\JwtVueCrudApp.csproj", "{64698312-AF72-482B-A72B-245DC9C02AC0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mvcClient", "mvcClient\mvcClient.csproj", "{3A1D1163-416D-4D47-BB0B-AB3573FE4DFB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "mvcClient", "mvcClient\mvcClient.csproj", "{3A1D1163-416D-4D47-BB0B-AB3573FE4DFB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommLibs", "CommLibs\CommLibs.csproj", "{01F43AB9-BCEB-401D-B57B-26B36C276A39}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommLibs", "CommLibs\CommLibs.csproj", "{01F43AB9-BCEB-401D-B57B-26B36C276A39}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProductTest", "ProductTest\ProductTest.csproj", "{681B02E0-04F8-4599-A35D-21B4A16D8B7E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{01F43AB9-BCEB-401D-B57B-26B36C276A39}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{01F43AB9-BCEB-401D-B57B-26B36C276A39}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{01F43AB9-BCEB-401D-B57B-26B36C276A39}.Release|Any CPU.Build.0 = Release|Any CPU
+		{681B02E0-04F8-4599-A35D-21B4A16D8B7E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{681B02E0-04F8-4599-A35D-21B4A16D8B7E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{681B02E0-04F8-4599-A35D-21B4A16D8B7E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{681B02E0-04F8-4599-A35D-21B4A16D8B7E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

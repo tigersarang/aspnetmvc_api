@@ -41,39 +41,39 @@ namespace JwtVueCrudApp.Controllers
 
         // GET: api/products/{id}
         [HttpGet("{id}")]
-        public IActionResult GetById(int id)
+        public async Task<IActionResult> GetById(int id)
         {
-            var product = _dbContext.Products.Include(u => u.User).FirstOrDefault(p => p.Id == id);
+            var product = await _dbContext.Products.Include(u => u.User).FirstOrDefaultAsync(p => p.Id == id);
             if (product == null)
             {
                 return NotFound();
             }
 
-            var replies = _dbContext.Replies.Include(ru => ru.User).Where(r => r.ProductId == id).OrderByDescending(o => o.Id).ToList();
+            var replies = await _dbContext.Replies.Include(ru => ru.User).Where(r => r.ProductId == id).OrderByDescending(o => o.Id).ToListAsync();
             product.Replies = replies;
             return Ok(product);
         }
 
         // POST: api/products
         [HttpPost]
-        public IActionResult Create([FromBody] Product product)
+        public async Task<IActionResult> Create([FromBody] Product product)
         {
             if (ModelState.IsValid)
             {
-                _dbContext.Products.Add(product);
-                _dbContext.SaveChanges();
-                return CreatedAtAction(nameof(GetById), new { id = product.Id }, product);
+                await _dbContext.Products.AddAsync(product);
+                await _dbContext.SaveChangesAsync();
+                return Ok(product);
             }
             return BadRequest(ModelState);
         }
 
         // PUT: api/products/{id}
         [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromBody] Product updatedProduct)
+        public async Task<IActionResult> Update(int id, [FromBody] Product updatedProduct)
         {
             if (ModelState.IsValid)
             {
-                var product = _dbContext.Products.FirstOrDefault(p => p.Id == id);
+                var product = await _dbContext.Products.FirstOrDefaultAsync(p => p.Id == id);
                 if (product == null)
                 {
                     return NotFound();
@@ -83,7 +83,7 @@ namespace JwtVueCrudApp.Controllers
                 product.Price = updatedProduct.Price;
                 product.Content = updatedProduct.Content;
 
-                _dbContext.SaveChanges();
+                await _dbContext.SaveChangesAsync();
                 return NoContent();
             }
             return BadRequest(ModelState);
@@ -91,16 +91,16 @@ namespace JwtVueCrudApp.Controllers
 
         // DELETE: api/products/{id}
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var product = _dbContext.Products.FirstOrDefault(p => p.Id == id);
+            var product = await _dbContext.Products.FirstOrDefaultAsync(p => p.Id == id);
             if (product == null)
             {
                 return NotFound();
             }
 
             _dbContext.Products.Remove(product);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
             return NoContent();
         }
     }
