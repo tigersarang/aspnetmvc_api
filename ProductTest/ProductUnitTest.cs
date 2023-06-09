@@ -5,6 +5,7 @@ using JwtVueCrudApp.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace ProductTest
 {
@@ -13,12 +14,14 @@ namespace ProductTest
     {
         ProductsController _productsController;
         ApplicationDbContext _dbContext;
+        private readonly ILogger<ProductsController> _logger;
+
 
         public ProductUnitTest()
         {
             _dbContext = new ApplicationDbContext(new DbContextOptionsBuilder<ApplicationDbContext>().UseInMemoryDatabase(databaseName: "tempProduct")
                 .EnableSensitiveDataLogging().Options);
-            _productsController = new ProductsController(_dbContext);
+            _productsController = new ProductsController(_dbContext, _logger);
         }
 
         // Product CRUD Test
@@ -40,7 +43,10 @@ namespace ProductTest
             {
                 var item = okResult.Value as Product;
                 Assert.AreEqual(product.Name, item.Name);
-            } else
+
+                _productsController.Delete(item.Id);
+            }
+            else
             {
                 Assert.Fail();
             }
@@ -65,6 +71,8 @@ namespace ProductTest
             {
                 var item = okResult.Value as Product;
                 Assert.AreEqual(product.Name, item.Name);
+                _productsController.Delete(item.Id);
+
             }
             else
             {
@@ -94,17 +102,6 @@ namespace ProductTest
             // Act
             var result = await _productsController.Create(product);
 
-            // Assert
-            if (result is OkObjectResult okResult)
-            {
-                var item = okResult.Value as Product;
-                Assert.AreEqual(product.Name, item.Name);
-            }
-            else
-            {
-                Assert.Fail();
-            }
-
             product = new Product
             {
                 Name = "Test Product1",
@@ -116,17 +113,6 @@ namespace ProductTest
             result = await _productsController.Create(product);
 
 
-
-            // Assert
-            if (result is OkObjectResult okResult2)
-            {
-                var item = okResult2.Value as Product;
-                Assert.AreEqual(product.Name, item.Name);
-            }
-            else
-            {
-                Assert.Fail();
-            }
             // Get All Product
             var allProduct = await _productsController.GetAll();
             Assert.AreEqual(((Microsoft.AspNetCore.Mvc.OkObjectResult)allProduct).StatusCode, StatusCodes.Status200OK);
@@ -135,7 +121,8 @@ namespace ProductTest
             {
                 var item = okResult3.Value as PagedResult<Product>;
                 Assert.AreEqual(2, item.TotalCount);
-            } else { Assert.Fail(); }
+            }
+            else { Assert.Fail(); }
         }
 
     }

@@ -96,13 +96,6 @@ namespace JwtVueCrudApp.Controllers
             return Ok(roles);
         }
 
-        [HttpGet("GetUserRoles")]
-        public IActionResult GetUserRoles()
-        {
-            var user = _dbContext.Users.Include(u => u.Roles).SingleOrDefault(u => u.UserName == User.Identity.Name);
-            return Ok(user.Roles);
-        }
-
         [HttpPost("refresh")]
         public async Task<IActionResult> Refresh([FromBody] string model)
         {
@@ -122,14 +115,6 @@ namespace JwtVueCrudApp.Controllers
                 }
             }
             return BadRequest(ModelState);
-        }
-
-        [AllowAnonymous]
-        [HttpGet("roles")]
-        public IActionResult Roles()
-        {
-            var roles = _dbContext.Roles.ToList();
-            return Ok(roles);
         }
 
         private string GenerateRefreshToken()

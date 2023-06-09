@@ -52,7 +52,7 @@
                     @Html.DisplayFor(modelItem => item.Id)
                 </td>
                 <td>
-                    @Html.ActionLink(item.Name, "Detail", new { id = item.Id }, new {@class="text-decoration-none"})
+                    @Html.ActionLink(item.Name, "Detail", new { id = item.Id }, new {@class="text-decoration-none", id="product-" + item.Id})
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.User.UserName)
