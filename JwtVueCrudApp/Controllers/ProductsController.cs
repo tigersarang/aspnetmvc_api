@@ -24,7 +24,7 @@ namespace JwtVueCrudApp.Controllers
 
         // GET: api/products
         [HttpGet]
-        public async Task<IActionResult> GetAll([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string? search = null)            
+        public async Task<IActionResult> GetAll([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string? search = null)
         {
             if (pageNumber < 1 || pageSize < 1) return BadRequest();
 
@@ -51,6 +51,9 @@ namespace JwtVueCrudApp.Controllers
                 return NotFound();
             }
 
+            // product.Content에 저장된 파일의 내용을 읽어서 Content에 저장합니다.
+            product.Content = await System.IO.File.ReadAllTextAsync(product.Content);
+
             var replies = await _dbContext.Replies.Include(ru => ru.User).Where(r => r.ProductId == id).OrderByDescending(o => o.Id).ToListAsync();
             product.Replies = replies;
             return Ok(product);
@@ -62,6 +65,22 @@ namespace JwtVueCrudApp.Controllers
         {
             if (ModelState.IsValid)
             {
+                // Content 값을 파일로 저장을 합니다. 그리고 저장된 파일의 경로를 Content에 저장합니다.
+                var contentPath = GlobalSettings.Instance.ProductContentPath;
+                var contentFileName = $"{Guid.NewGuid()}.txt";
+                var saveDir = Path.Combine(AppContext.BaseDirectory, contentPath);
+
+                //saveDir가 없으면 생성
+                if (!Directory.Exists(saveDir))
+                {
+                    Directory.CreateDirectory(saveDir);
+                }
+
+                var contentFilePath = Path.Combine(saveDir, contentFileName);
+                await System.IO.File.WriteAllTextAsync(contentFilePath, product.Content);
+
+                product.Content = contentFilePath;
+
                 await _dbContext.Products.AddAsync(product);
                 await _dbContext.SaveChangesAsync();
                 return Ok(product);
@@ -73,20 +92,36 @@ namespace JwtVueCrudApp.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] Product updatedProduct)
         {
+            string oldFilePath = string.Empty;
             if (ModelState.IsValid)
             {
                 var product = await _dbContext.Products.FirstOrDefaultAsync(p => p.Id == id);
+                oldFilePath = product.Content;
+
                 if (product == null)
                 {
                     return NotFound();
                 }
 
+                // Content 값을 파일로 저장을 합니다. 그리고 저장된 파일의 경로를 Content에 저장합니다.
+                var contentFileName = $"{Guid.NewGuid()}.txt";
+                var saveDir = Path.Combine(AppContext.BaseDirectory, GlobalSettings.Instance.ProductContentPath);
+
+                var contentFilePath = Path.Combine(saveDir, contentFileName);
+                await System.IO.File.WriteAllTextAsync(contentFilePath, product.Content);
+
+                product.Content = contentFilePath;
                 product.Name = updatedProduct.Name;
                 product.Price = updatedProduct.Price;
-                product.Content = updatedProduct.Content;
                 product.UpdatedDate = DateTime.Now;
 
                 await _dbContext.SaveChangesAsync();
+
+                // 기존 파일 삭제
+                if (!string.IsNullOrEmpty(oldFilePath))
+                {
+                    System.IO.File.Delete(oldFilePath);
+                }
                 return NoContent();
             }
             return BadRequest(ModelState);
