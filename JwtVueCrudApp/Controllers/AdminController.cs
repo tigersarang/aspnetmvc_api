@@ -22,8 +22,8 @@ namespace JwtVueCrudApp.Controllers
     public class AdminController : ControllerBase
     {
         private readonly ApplicationDbContext _dbContext;
-        private readonly ILogger<AuthController> _logger;
-        public AdminController(ApplicationDbContext dbContext, IConfiguration configuration, ILogger<AuthController> logger)
+        private readonly ILogger<AdminController> _logger;
+        public AdminController(ApplicationDbContext dbContext, IConfiguration configuration, ILogger<AdminController> logger)
         {
             _dbContext = dbContext;
             _logger = logger;
