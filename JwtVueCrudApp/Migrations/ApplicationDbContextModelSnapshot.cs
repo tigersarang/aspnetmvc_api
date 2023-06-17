@@ -58,6 +58,32 @@ namespace JwtVueCrudApp.Migrations
                     b.ToTable("Products");
                 });
 
+            modelBuilder.Entity("CommLibs.Models.ProductFile", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LInkFileName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("ProductId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("ProductFiles");
+                });
+
             modelBuilder.Entity("CommLibs.Models.Reply", b =>
                 {
                     b.Property<int>("Id")
@@ -155,6 +181,15 @@ namespace JwtVueCrudApp.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("CommLibs.Models.ProductFile", b =>
+                {
+                    b.HasOne("CommLibs.Models.Product", "Product")
+                        .WithMany("ProductFiles")
+                        .HasForeignKey("ProductId");
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("CommLibs.Models.Reply", b =>
                 {
                     b.HasOne("CommLibs.Models.Product", null)
@@ -186,6 +221,8 @@ namespace JwtVueCrudApp.Migrations
 
             modelBuilder.Entity("CommLibs.Models.Product", b =>
                 {
+                    b.Navigation("ProductFiles");
+
                     b.Navigation("Replies");
                 });
 

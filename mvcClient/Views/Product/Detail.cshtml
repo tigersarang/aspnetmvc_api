@@ -37,8 +37,15 @@
         </dt>
         <div class="form-control border-0">
             <textarea asp-for="Content" class="form-control summernote"></textarea>
-
         </div>
+        <div cite="form-control">
+            <p>업로드 파일</p>
+            @foreach (var file in Model.ProductFiles)
+            {
+              <a href="/Upload/DownloadFile/@Html.Raw(System.Net.WebUtility.UrlEncode(file.LInkFileName))">@file.FileName</a><br />
+            }
+        </div>
+
     </dl>
 
     <div class="text-center">

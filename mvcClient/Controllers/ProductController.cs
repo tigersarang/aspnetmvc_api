@@ -1,6 +1,7 @@
 ﻿using CommLibs.Dto;
 using CommLibs.Models;
 using Microsoft.AspNetCore.Mvc;
+using mvcClient.Models;
 using mvcClient.Utils;
 
 namespace mvcClient.Controllers
@@ -68,7 +69,7 @@ namespace mvcClient.Controllers
             return View();
         }
         [HttpPost]
-        public async Task<IActionResult> Create(Product product)
+        public async Task<IActionResult> Create(ProductDto productDto)
         {
             if (_apiClient.IsTokenExpired())
             {
@@ -80,7 +81,32 @@ namespace mvcClient.Controllers
 
             _apiClient.SetAccessToken();
 
-            product.UserId = int.Parse(HttpContext.Session.GetString("UserId"));
+            productDto.UserId = int.Parse(HttpContext.Session.GetString("UserId"));
+
+            Product product = new Product
+            {
+                Name = productDto.Name,
+                Content = productDto.Content,
+                UserId = productDto.UserId
+            };
+
+            string upDir = Path.Combine(GV.I.RD, GV.I.UD);
+
+            if (Directory.Exists(upDir) == false)
+            {
+                Directory.CreateDirectory(upDir);
+            }
+
+            List<ProductFile> productFiles = new List<ProductFile>();
+
+            foreach (var file in productDto.files)
+            {
+                System.IO.File.Move(Path.Combine(GV.I.RD, file), Path.Combine(upDir, file));
+                productFiles.Add(new ProductFile { FileName = file.Split("___")[1], LInkFileName = file });
+            }
+
+            product.ProductFiles = productFiles;
+            
             var result = await _apiClient.Create(product);
             if (result)
             {

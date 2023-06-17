@@ -45,7 +45,7 @@ namespace JwtVueCrudApp.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var product = await _dbContext.Products.Include(u => u.User).FirstOrDefaultAsync(p => p.Id == id);
+            var product = await _dbContext.Products.Include(u => u.User).Include(f => f.ProductFiles).FirstOrDefaultAsync(p => p.Id == id);
             if (product == null)
             {
                 return NotFound();
@@ -63,29 +63,36 @@ namespace JwtVueCrudApp.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] Product product)
         {
-            if (ModelState.IsValid)
+            try
             {
-                // Content 값을 파일로 저장을 합니다. 그리고 저장된 파일의 경로를 Content에 저장합니다.
-                var contentPath = GlobalSettings.Instance.ProductContentPath;
-                var contentFileName = $"{Guid.NewGuid()}.txt";
-                var saveDir = Path.Combine(AppContext.BaseDirectory, contentPath);
-
-                //saveDir가 없으면 생성
-                if (!Directory.Exists(saveDir))
+                if (ModelState.IsValid)
                 {
-                    Directory.CreateDirectory(saveDir);
+                    // Content 값을 파일로 저장을 합니다. 그리고 저장된 파일의 경로를 Content에 저장합니다.
+                    var contentPath = GlobalSettings.Instance.ProductContentPath;
+                    var contentFileName = $"{Guid.NewGuid()}.txt";
+                    var saveDir = Path.Combine(AppContext.BaseDirectory, contentPath);
+
+                    //saveDir가 없으면 생성
+                    if (!Directory.Exists(saveDir))
+                    {
+                        Directory.CreateDirectory(saveDir);
+                    }
+
+                    var contentFilePath = Path.Combine(saveDir, contentFileName);
+                    await System.IO.File.WriteAllTextAsync(contentFilePath, product.Content);
+
+                    product.Content = contentFilePath;
+
+                    await _dbContext.Products.AddAsync(product);
+                    await _dbContext.SaveChangesAsync();
+                    return Ok(product);
                 }
-
-                var contentFilePath = Path.Combine(saveDir, contentFileName);
-                await System.IO.File.WriteAllTextAsync(contentFilePath, product.Content);
-
-                product.Content = contentFilePath;
-
-                await _dbContext.Products.AddAsync(product);
-                await _dbContext.SaveChangesAsync();
-                return Ok(product);
+                return BadRequest(ModelState);
+            } catch(Exception ex)
+            {
+                _logger.LogError(ex, "Create Error");
+                return BadRequest(ex.Message);
             }
-            return BadRequest(ModelState);
         }
 
         // PUT: api/products/{id}

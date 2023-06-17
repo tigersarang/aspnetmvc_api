@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Server.Kestrel.Core;
+using mvcClient.Models;
 using mvcClient.Utils;
 using Serilog;
 using System.Net.Security;
@@ -8,6 +10,11 @@ Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
     .WriteTo.File("c:/JwtLogs/client/log.txt", rollingInterval: RollingInterval.Day)
     .CreateLogger();
+
+builder.Services.Configure<KestrelServerOptions>(options =>
+{
+    options.Limits.MaxRequestBodySize = 52428800 * 4; // 200MB
+});
 
 builder.Host.UseSerilog();
 
@@ -22,6 +29,8 @@ builder.Services.AddSession(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
+
+GV.I = builder.Configuration.GetSection("GV").Get<GV>();
 
 builder.Services.AddHttpClient<ApiClient>(client =>
 {

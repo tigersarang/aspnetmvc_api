@@ -23,6 +23,7 @@ namespace CommLibs.Models
         public string Content { get; set; }
 
         public ICollection<Reply>? Replies { get; set; }
+        public ICollection<ProductFile>? ProductFiles { get; set; }
 
         public int? UserId { get; set; }
         public User? User { get; set; }
