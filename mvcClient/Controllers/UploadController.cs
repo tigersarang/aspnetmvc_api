@@ -64,6 +64,34 @@ namespace mvcClient.Controllers
             }
         }
 
+        [HttpDelete("{fileName}")]
+        public IActionResult DeleteFile(string fileName)
+        {
+            try
+            {
+                fileName = System.Net.WebUtility.UrlDecode(fileName);
+
+                if (string.IsNullOrEmpty(fileName))
+                {
+                    return BadRequest("File name is null or empty");
+                }
+
+                string path = Path.Combine(Directory.GetCurrentDirectory(), GV.I.RD, fileName);
+
+                if (System.IO.File.Exists(path) == false)
+                {
+                    return BadRequest("파일이 존재하지 않습니다.");
+                }
+
+                System.IO.File.Delete(path);
+
+                return Ok();
+            } catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }   
+
         private string GetContentType(string path)
         {
             var types = GetMimeTypes();

@@ -103,5 +103,23 @@
             });
         });
 
+        window.addEventListener("beforeunload", function (e) {
+            for (var i=0; i < myDropzone.files.length; i++)
+            {
+                var file = myDropzone.files[i];
+
+                $.ajax({
+                    url: "/Upload/DeleteFile/" + encodeURIComponent(file.upload.newFileName),
+                    type: "DELETE",
+                    success: function (response) {
+                        console.log(response);
+                    },
+                    error: function (response) {
+                        console.log(response);
+                    }
+                });
+            }
+        });
+
     </script>
 }
