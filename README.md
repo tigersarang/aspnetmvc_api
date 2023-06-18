@@ -1,5 +1,10 @@
-This repository is about creating a simple bulletin board using ASP.NET Core 6 and WebAPI. JWT tokens, refresh tokens, and permissions were used for logging in. Additionally, tools like ChatGPT and Copilot were used for assistance.
-I used Summernote for the WYSIWYG editor.
+This repository is about creating a simple bulletin board using ASP.NET Core 6 and WebAPI. 
+
+This repository has implemented the following features:
+1. JWT Token and refresh token
+2. Role
+3. Summernote
+4. Dropzone
 
 
 User Register Page 
@@ -13,11 +18,13 @@ List page
 
 create page
 
-![image](https://github.com/tigersarang/aspnetmvc_api/assets/5335567/09a0dab6-c999-4118-b8e3-d98742ac5beb)
+![image](https://github.com/tigersarang/aspnetmvc_api/assets/5335567/a9295837-8e79-43b2-b6e9-67f36c97c90c)
+
 
 
 detail page
-![image](https://github.com/tigersarang/aspnetmvc_api/assets/5335567/d441d5f4-0951-406c-92f5-65890fdb3df5)
+![image](https://github.com/tigersarang/aspnetmvc_api/assets/5335567/19998aae-5139-44dd-91e1-7f1bf65d3c8f)
+
 
 
 
