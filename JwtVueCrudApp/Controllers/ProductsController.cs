@@ -45,18 +45,25 @@ namespace JwtVueCrudApp.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var product = await _dbContext.Products.Include(u => u.User).Include(f => f.ProductFiles).FirstOrDefaultAsync(p => p.Id == id);
-            if (product == null)
+            try
             {
-                return NotFound();
+                var product = await _dbContext.Products.Include(u => u.User).Include(f => f.ProductFiles).FirstOrDefaultAsync(p => p.Id == id);
+                if (product == null)
+                {
+                    return NotFound();
+                }
+
+                // product.Content에 저장된 파일의 내용을 읽어서 Content에 저장합니다.
+                product.Content = await System.IO.File.ReadAllTextAsync(product.Content);
+
+                var replies = await _dbContext.Replies.Include(ru => ru.User).Where(r => r.ProductId == id).OrderByDescending(o => o.Id).ToListAsync();
+                product.Replies = replies;
+                return Ok(product);
+            } catch (Exception ex)
+            {
+                _logger.LogError(ex, "GetById Error");
+                return BadRequest(ex.Message);
             }
-
-            // product.Content에 저장된 파일의 내용을 읽어서 Content에 저장합니다.
-            product.Content = await System.IO.File.ReadAllTextAsync(product.Content);
-
-            var replies = await _dbContext.Replies.Include(ru => ru.User).Where(r => r.ProductId == id).OrderByDescending(o => o.Id).ToListAsync();
-            product.Replies = replies;
-            return Ok(product);
         }
 
         // POST: api/products

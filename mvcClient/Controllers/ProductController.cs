@@ -41,7 +41,7 @@ namespace mvcClient.Controllers
             }
             catch (Exception ex)
             {
-                return RedirectToAction("Login","Account");
+                return RedirectToAction("Login", "Account");
             }
         }
 
@@ -99,14 +99,18 @@ namespace mvcClient.Controllers
 
             List<ProductFile> productFiles = new List<ProductFile>();
 
-            foreach (var file in productDto.files)
+            if (productDto.files != null)
             {
-                System.IO.File.Move(Path.Combine(GV.I.RD, file), Path.Combine(upDir, file));
-                productFiles.Add(new ProductFile { FileName = file.Split("___")[1], LInkFileName = file });
+
+                foreach (var file in productDto.files)
+                {
+                    System.IO.File.Move(Path.Combine(GV.I.RD, file), Path.Combine(upDir, file));
+                    productFiles.Add(new ProductFile { FileName = file.Split("___")[1], LInkFileName = file });
+                }
             }
 
             product.ProductFiles = productFiles;
-            
+
             var result = await _apiClient.Create(product);
             if (result)
             {
