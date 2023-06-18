@@ -13,7 +13,8 @@ User Register Page
 
 List page
 
-![image](https://github.com/tigersarang/aspnetmvc_api/assets/5335567/f411daa6-a9dd-43a8-839f-d43602fad06d)
+![image](https://github.com/tigersarang/aspnetmvc_api/assets/5335567/152e8466-053a-4ada-a40b-b98495f8d6cf)
+
 
 
 create page
