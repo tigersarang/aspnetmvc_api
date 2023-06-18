@@ -77,6 +77,20 @@
                 alert(response);
                 myDropzone.removeFile(file);
                 console.log(response);
+            },
+            removedfile: function (file) {
+                $.ajax({
+                    url: "/Upload/DeleteFile/" + encodeURIComponent(file.upload.newFileName),
+                    type: "DELETE",
+                    success: function (response) {
+                        console.log(response);
+                    },
+                    error: function (response) {
+                        console.log(response);
+                    }
+                });
+                var _ref;
+                return (_ref = file.previewElement) != null ? _ref.parentNode.removeChild(file.previewElement) : void 0;
             }
         });
 
@@ -104,8 +118,7 @@
         });
 
         window.addEventListener("beforeunload", function (e) {
-            for (var i=0; i < myDropzone.files.length; i++)
-            {
+            for (var i = 0; i < myDropzone.files.length; i++) {
                 var file = myDropzone.files[i];
 
                 $.ajax({
