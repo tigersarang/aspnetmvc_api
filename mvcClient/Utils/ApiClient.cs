@@ -1,6 +1,7 @@
 ﻿using CommLibs.Dto;
 using CommLibs.Models;
 using Microsoft.AspNetCore.Mvc;
+using mvcClient.Models;
 using Newtonsoft.Json;
 using System.Net.Http.Headers;
 
@@ -80,37 +81,24 @@ namespace mvcClient.Utils
         // jwtvuecrudapp의 ProductsController의 모든 메서드 대응
 
         //public async Task<IActionResult> GetAll([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string search = null)
-        public async Task<PagedResult<Product>> GetAll(int pageNumber = 1, int pageSize = 10, string search = null)
+        public async Task<HttpResponseMessage> GetAll(int pageNumber = 1, int pageSize = 10, string search = null)
         {
             var response = await _httpClient.GetAsync($"products?pageNumber={pageNumber}&pageSize={pageSize}&search={search}");
-
-            if (response.IsSuccessStatusCode == false)
-            {
-                throw new HttpRequestException($"product 조회 실패 :  {response.StatusCode}");
-            }
-
-            // 성공했을 때 리턴값을 PageResult<ProdcutDto>로 받음
-            var result = response.Content.ReadFromJsonAsync<PagedResult<Product>>().Result;
-
-            if (result.Items == null)
-            {
-                result.Items = new List<Product>();
-            }
-            return result;
+            return response;
         }
 
         //public async Task<IActionResult> GetById(int id)
-        public async Task<Product> GetById(int id)
+        public async Task<HttpResponseMessage> GetById(int id)
         {
             var response = await _httpClient.GetAsync($"products/{id}");
-            return await response.Content.ReadFromJsonAsync<Product>();
+            return response;
         }
 
         //public async Task<IActionResult> Create([FromBody] Product product)
-        public async Task<bool> Create(Product product)
+        public async Task<HttpResponseMessage> Create(Product product)
         {
             var response = await _httpClient.PostAsJsonAsync("products", product);
-            return response.IsSuccessStatusCode;
+            return response;
         }
 
         //public async Task<IActionResult> Update(int id, [FromBody] Product product)

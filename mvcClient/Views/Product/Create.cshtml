@@ -94,7 +94,7 @@
                 data: $("#myForm").serialize(),
                 success: function (response) {
                     myDropzone.removeAllFiles();
-                    location.href = "/Home/Privacy";
+                    location.href = response;
                     console.log(response);
                 },
                 error: function (response) {

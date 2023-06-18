@@ -13,7 +13,7 @@ namespace mvcClient.Controllers
             {
                 if (file == null)
                 {
-                    return BadRequest("파일 사이즈가 너무 크거나 지원되지 않는 확장자입니다.");
+                    return BadRequest("The file size is too large or the extension is not supported.");
                 }
 
                 string newFileName = Guid.NewGuid().ToString() + "___" + Path.GetFileName(file.FileName);

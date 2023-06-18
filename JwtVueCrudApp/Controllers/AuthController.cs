@@ -37,18 +37,20 @@ namespace JwtVueCrudApp.Controllers
             {
                 if (_dbContext.Users.Any(u => u.UserName == model.UserName))
                 {
-                    return BadRequest("Username already exists");
+                    return BadRequest(new { message = "The username already exist." });
                 }
 
                 Role role = _dbContext.Roles.SingleOrDefault(r => r.Id == model.RoleId);
-                
+
                 var user = new User { UserName = model.UserName, Password = BCrypt.Net.BCrypt.HashPassword(model.Password), Role = role };
 
                 _dbContext.Users.Add(user);
                 _dbContext.SaveChanges();
                 return Ok();
             }
-            return BadRequest(ModelState);
+
+            return BadRequest(new { message = "faile to register." });
+
         }
 
         [AllowAnonymous]
@@ -56,7 +58,6 @@ namespace JwtVueCrudApp.Controllers
         public async Task<IActionResult> Login([FromBody] User model)
         {
             _logger.LogWarning("Login Start...");
-
 
             try
             {
@@ -67,6 +68,12 @@ namespace JwtVueCrudApp.Controllers
                     if (user != null && BCrypt.Net.BCrypt.Verify(model.Password, user.Password))
                     {
                         string accessToken = GenerateAccessToken(user);
+
+                        if (string.IsNullOrEmpty(accessToken) == true)
+                        {
+                            return BadRequest(new { message = "Failed to generate token." });
+                        }
+
                         string refreshToken = GenerateRefreshToken();
 
                         user.RefreshToken = refreshToken;
@@ -76,15 +83,16 @@ namespace JwtVueCrudApp.Controllers
                     }
                     else
                     {
-                        return Unauthorized();
+                        return BadRequest(new { message = "Please check your user ID and password" });
                     }
                 }
-                return BadRequest(ModelState);
+                return BadRequest(new { message = "This is an incorrect approach." });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
-                return BadRequest(ex.Message);
+                return BadRequest(new { message = "This is an incorrect approach." });
+
             }
         }
         // get : /api/auth/Roles
@@ -99,22 +107,37 @@ namespace JwtVueCrudApp.Controllers
         [HttpPost("refresh")]
         public async Task<IActionResult> Refresh([FromBody] string model)
         {
-            if (ModelState.IsValid)
+            try
             {
-                // User에 refresh token이 있는지 확인. 그리고 refresh token이 만료되지 않았는지 확인.
-                var user = _dbContext.Users.SingleOrDefault(u => u.RefreshToken == model && u.RefreshTokenExpiry > DateTime.UtcNow);
+                if (ModelState.IsValid)
+                {
+                    // User에 refresh token이 있는지 확인. 그리고 refresh token이 만료되지 않았는지 확인.
+                    var user = _dbContext.Users.SingleOrDefault(u => u.RefreshToken == model && u.RefreshTokenExpiry > DateTime.UtcNow);
 
-                if (user != null)
-                {
-                    string accessToken = GenerateAccessToken(user);
-                    return Ok(new { Token = accessToken });
+                    if (user != null)
+                    {
+                        string accessToken = GenerateAccessToken(user);
+
+                        if (string.IsNullOrEmpty(accessToken) == true)
+                        {
+                            return BadRequest(new { message = "Failed to generate token." });
+                        }
+
+                        return Ok(new { Token = accessToken });
+                    }
+                    else
+                    {
+                        return BadRequest(new { message = "The login user information is incorrect." });
+                    }
                 }
-                else
-                {
-                    return Unauthorized();
-                }
+                return BadRequest(new { message = "This is an incorrect approach." });
             }
-            return BadRequest(ModelState);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return BadRequest(new { message = "This is an incorrect approach." });
+
+            }
         }
 
         private string GenerateRefreshToken()
@@ -124,24 +147,33 @@ namespace JwtVueCrudApp.Controllers
 
         private string GenerateAccessToken(User user)
         {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_configuration["JwtSettings:SecretKey"]);
-            var tokenDescriptor = new SecurityTokenDescriptor
+            try
             {
-                Subject = new ClaimsIdentity(new Claim[]
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var key = Encoding.ASCII.GetBytes(_configuration["JwtSettings:SecretKey"]);
+                var tokenDescriptor = new SecurityTokenDescriptor
                 {
+                    Subject = new ClaimsIdentity(new Claim[]
+                    {
                             new Claim(ClaimTypes.Name, user.UserName),
                             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                             new Claim(ClaimTypes.Role, user.Role.Name)
-                }),
-                Expires = DateTime.UtcNow.AddHours(1),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
-                Issuer = _configuration["JwtSettings:Issuer"],
-                Audience = _configuration["JwtSettings:Audience"]
-            };
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            var tokenString = tokenHandler.WriteToken(token);
-            return tokenString;
+                    }),
+                    Expires = DateTime.UtcNow.AddHours(1),
+                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
+                    Issuer = _configuration["JwtSettings:Issuer"],
+                    Audience = _configuration["JwtSettings:Audience"]
+                };
+                var token = tokenHandler.CreateToken(tokenDescriptor);
+                var tokenString = tokenHandler.WriteToken(token);
+                return tokenString;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return null;
+
+            }
         }
     }
 }

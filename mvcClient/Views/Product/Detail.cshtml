@@ -39,7 +39,10 @@
             <textarea asp-for="Content" class="form-control summernote"></textarea>
         </div>
         <div cite="form-control">
-            <p>업로드 파일</p>
+            @if (Model.ProductFiles.Count() > 0)
+            {
+                <p>업로드 파일</p>
+            }
             @foreach (var file in Model.ProductFiles)
             {
               <a href="/Upload/DownloadFile/@Html.Raw(System.Net.WebUtility.UrlEncode(file.LInkFileName))">@file.FileName</a><br />
