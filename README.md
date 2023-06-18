@@ -6,6 +6,12 @@ This repository has implemented the following features:
 3. Summernote
 4. Dropzone
 
+To run this source, the following items are required.
+1. Visualstudio
+2. Sql Server
+3. Npm
+
+And you also need to know about EntityFramework.
 
 User Register Page 
 
