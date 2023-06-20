@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using mvcClient.Models;
 using Newtonsoft.Json;
 using System.Net.Http.Headers;
+using System.Text;
 
 namespace mvcClient.Utils
 {
@@ -11,11 +12,14 @@ namespace mvcClient.Utils
     {
         private readonly HttpClient _httpClient;
         private readonly IHttpContextAccessor _contextAccessor;
+        private readonly ILogger<ApiClient> _logger;
 
-        public ApiClient(HttpClient httpClient, IHttpContextAccessor contextAccessor)
+
+        public ApiClient(HttpClient httpClient, IHttpContextAccessor contextAccessor, ILogger<ApiClient> logger)
         {
             _httpClient = httpClient;
             _contextAccessor = contextAccessor;
+            _logger = logger;
         }
 
         // JwtVueCrudApp의 AuthController.cs의 public IActionResult Register([FromBody] RegisterModel model)과 대응
@@ -88,10 +92,17 @@ namespace mvcClient.Utils
         }
 
         //public async Task<IActionResult> GetById(int id)
-        public async Task<HttpResponseMessage> GetById(int id)
+        public async Task<Product> GetById(int id)
         {
             var response = await _httpClient.GetAsync($"products/{id}");
-            return response;
+
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadFromJsonAsync<Product>();
+            } else
+            {
+                return null;
+            }
         }
 
         //public async Task<IActionResult> Create([FromBody] Product product)
@@ -102,10 +113,10 @@ namespace mvcClient.Utils
         }
 
         //public async Task<IActionResult> Update(int id, [FromBody] Product product)
-        public async Task<bool> Update(int id, Product product)
+        public async Task<HttpResponseMessage> UpdateAsync(int id, Product product)
         {
             var response = await _httpClient.PutAsJsonAsync($"products/{id}", product);
-            return response.IsSuccessStatusCode;
+            return response;
         }
 
         //public async Task<IActionResult> Delete(int id)
@@ -146,6 +157,56 @@ namespace mvcClient.Utils
         {
             var response = await _httpClient.DeleteAsync($"replies/{id}");
             return response.IsSuccessStatusCode;
+        }
+
+        ////////////////////////////////////////////////////////////////////////////////
+        // File 작업
+        ////////////////////////////////////////////////////////////////////////////////
+        
+        /// <summary>
+        /// Delete File
+        /// </summary>
+        /// <param name="deleteDto"></param>
+        /// <returns></returns>
+        public async Task<bool> DeleteFile(int Id)
+        {
+
+            try
+            {
+                var response = await _httpClient.DeleteAsync($"/api/FilesApi/{Id}");
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    return true;
+                } else
+                {
+                    _logger.LogError(await response.Content.ReadAsStringAsync());
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return false;
+            }
+            finally
+            {
+            }
+            
+        }
+
+        public async Task<ProductFile> GetFile(int id)
+        {
+            var response = await _httpClient.GetAsync($"/api/FilesApi/{id}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadFromJsonAsync<ProductFile>();
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }

@@ -20,6 +20,12 @@ namespace JwtVueCrudApp.Models
                 .WithOne()
                 .HasForeignKey(p => p.ProductId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Product>()
+                .HasMany(p => p.ProductFiles)
+                .WithOne()
+                .HasForeignKey(p => p.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

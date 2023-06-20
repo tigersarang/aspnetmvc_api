@@ -5,9 +5,11 @@ using Microsoft.AspNetCore.Mvc;
 using mvcClient.Models;
 using mvcClient.Utils;
 using Newtonsoft.Json;
+using NuGet.Packaging;
 
 namespace mvcClient.Controllers
 {
+    [Route("[controller]/[action]")]
     public class ProductController : Controller
     {
         private readonly ApiClient _apiClient;
@@ -16,7 +18,8 @@ namespace mvcClient.Controllers
             _apiClient = apiClient;
         }
 
-
+        [HttpGet("/Product")]
+        [HttpGet("/Product/Index")]
         //  public async Task<IActionResult> GetAll([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string search = null)
         public async Task<IActionResult> Index(int pageNumber = 1, int pageSize = 10, string search = null)
         {
@@ -59,6 +62,7 @@ namespace mvcClient.Controllers
             }
         }
 
+        [HttpGet("{id}")]
         // public IActionResult GetById(int id)
         public async Task<IActionResult> Detail(int id)
         {
@@ -74,17 +78,7 @@ namespace mvcClient.Controllers
 
                 _apiClient.SetAccessToken();
 
-                var response = await _apiClient.GetById(id);
-
-                if (response.IsSuccessStatusCode == false)
-                {
-                    string errorJson = string.Empty;
-                    errorJson = await response.Content.ReadAsStringAsync();
-                    var error = JsonConvert.DeserializeObject<ErrorViewModel>(errorJson);
-                    return RedirectToAction("Error", "Home", new ErrorViewModel { Message = error.Message });
-                }
-
-                var product = response.Content.ReadFromJsonAsync<Product>().Result;
+                var product = await _apiClient.GetById(id);
 
                 return View(product);
             }
@@ -97,7 +91,7 @@ namespace mvcClient.Controllers
 
 
         //  public IActionResult Create([FromBody] Product product)
-        public async Task<IActionResult> Create()
+        public async Task<IActionResult> Create(int? id)
         {
             try
             {
@@ -111,7 +105,17 @@ namespace mvcClient.Controllers
 
                 _apiClient.SetAccessToken();
 
-                return View();
+                Product product = new Product();
+                if (id.GetValueOrDefault() > 0)
+                {
+                    product = await _apiClient.GetById(id.GetValueOrDefault());
+                } else
+                {
+                    product = new Product();
+                    product.ProductFiles = new List<ProductFile>();
+                }
+
+                return View(product);
             }
             catch (Exception ex)
             {
@@ -137,14 +141,21 @@ namespace mvcClient.Controllers
 
                 productDto.UserId = int.Parse(HttpContext.Session.GetString("UserId"));
 
-                Product product = new Product
-                {
-                    Name = productDto.Name,
-                    Content = productDto.Content,
-                    UserId = productDto.UserId
-                };
+                Product product = new Product();
 
-                string upDir = Path.Combine(GV.I.RD, GV.I.UD);
+                // If productdto.is exists, execute the update.
+                if (productDto.Id > 0)
+                {
+                    product = await _apiClient.GetById(productDto.Id);
+                }
+
+                // Save the modified product information.
+                product.Name = productDto.Name;
+                product.Content = productDto.Content;
+                product.UserId = productDto.UserId;
+                product.ProductFiles = new List<ProductFile>();
+
+                string upDir = Path.Combine(Directory.GetCurrentDirectory(), GV.I.RD, GV.I.UD);
 
                 if (Directory.Exists(upDir) == false)
                 {
@@ -158,20 +169,30 @@ namespace mvcClient.Controllers
 
                     foreach (var file in productDto.files)
                     {
-                        System.IO.File.Move(Path.Combine(GV.I.RD, file), Path.Combine(upDir, file));
+                        System.IO.File.Move(Path.Combine(Directory.GetCurrentDirectory(), GV.I.RD, file), Path.Combine(upDir, file));
                         productFiles.Add(new ProductFile { FileName = file.Split("___")[1], LInkFileName = file });
                     }
+                    product.ProductFiles.AddRange(productFiles);
                 }
 
-                product.ProductFiles = productFiles;
+                HttpResponseMessage? response;
 
-                var response = await _apiClient.Create(product);
+                if (productDto.Id > 0)
+                {
+                    response = await _apiClient.UpdateAsync(productDto.Id, product);
+
+                } else
+                {
+                    response = await _apiClient.Create(product);
+
+                }
+
                 var result = await response.Content.ReadAsStringAsync();
                 if (response.IsSuccessStatusCode)
                 {
                     var productResult = JsonConvert.DeserializeObject<Product>(result);
                     return Ok($"/Product/Detail/{productResult.Id}");
-                } 
+                }
 
                 var error = JsonConvert.DeserializeObject<ErrorViewModel>(result);
                 return BadRequest(new { message = error });
@@ -183,51 +204,35 @@ namespace mvcClient.Controllers
             }
         }
 
-        // public IActionResult Update(int id, [FromBody] Product product)
-        public async Task<IActionResult> Update(int id)
-        {
-            if (_apiClient.IsTokenExpired())
-            {
-                if (!await _apiClient.RefreshToken())
-                {
-                    return RedirectToAction("Login", "Account");
-                }
-            }
+        //[HttpPost]
+        //public async Task<IActionResult> Update(int id, Product product)
+        //{
+        //    try
+        //    {
+        //        if (_apiClient.IsTokenExpired())
+        //        {
+        //            if (!await _apiClient.RefreshToken())
+        //            {
+        //                return RedirectToAction("Login", "Account");
+        //            }
+        //        }
 
-            _apiClient.SetAccessToken();
+        //        _apiClient.SetAccessToken();
 
-            var product = await _apiClient.GetById(id);
-            return View(product);
-        }
-        [HttpPost]
-        public async Task<IActionResult> Update(int id, Product product)
-        {
-            try
-            {
-                if (_apiClient.IsTokenExpired())
-                {
-                    if (!await _apiClient.RefreshToken())
-                    {
-                        return RedirectToAction("Login", "Account");
-                    }
-                }
+        //        var result = await _apiClient.Update(id, product);
+        //        if (result)
+        //        {
+        //            return RedirectToAction("Index");
+        //        }
+        //        return View(product);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return RedirectToAction("Error", "Home", new ErrorViewModel { Message = "Failed to update the project" });
+        //    }
+        //}
 
-                _apiClient.SetAccessToken();
-
-                var result = await _apiClient.Update(id, product);
-                if (result)
-                {
-                    return RedirectToAction("Index");
-                }
-                return View(product);
-            }
-            catch (Exception ex)
-            {
-                return RedirectToAction("Error", "Home", new ErrorViewModel { Message = "Failed to update the project" });
-            }
-        }
-
-        // public IActionResult Delete(int id)
+        [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
             try
@@ -243,11 +248,11 @@ namespace mvcClient.Controllers
                 _apiClient.SetAccessToken();
 
                 var product = await _apiClient.Delete(id);
-                return RedirectToAction("Index", "Product");
+                return Ok();
             }
             catch (Exception ex)
             {
-                return RedirectToAction("Error", "Home", new ErrorViewModel { Message = "Failed to delete the project" });
+                return BadRequest(new { message = "There was an error deleting the product." });
             }
         }
     }

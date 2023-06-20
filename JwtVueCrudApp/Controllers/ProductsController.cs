@@ -65,6 +65,11 @@ namespace JwtVueCrudApp.Controllers
 
                 var replies = await _dbContext.Replies.Include(ru => ru.User).Where(r => r.ProductId == id).OrderByDescending(o => o.Id).ToListAsync();
                 product.Replies = replies;
+
+                if (product.ProductFiles == null)
+                {
+                    product.ProductFiles = new List<ProductFile>();
+                }
                 return Ok(product);
             }
             catch (Exception ex)
@@ -140,6 +145,7 @@ namespace JwtVueCrudApp.Controllers
                     product.Name = updatedProduct.Name;
                     product.Price = updatedProduct.Price;
                     product.UpdatedDate = DateTime.Now;
+                    product.ProductFiles = updatedProduct.ProductFiles;
 
                     await _dbContext.SaveChangesAsync();
 
@@ -148,7 +154,7 @@ namespace JwtVueCrudApp.Controllers
                     {
                         System.IO.File.Delete(oldFilePath);
                     }
-                    return NoContent();
+                    return Ok(product);
                 }
                 return BadRequest(new { message = "Failed to update the product. " });
 
