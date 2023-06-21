@@ -107,10 +107,10 @@ namespace mvcClient.Utils
         }
 
         //public async Task<IActionResult> Create([FromBody] Product product)
-        public async Task<bool> Create(Product product)
+        public async Task<HttpResponseMessage> Create(Product product)
         {
             var response = await _httpClient.PostAsJsonAsync("products", product);
-            return response.IsSuccessStatusCode;
+            return response;
         }
 
         //public async Task<IActionResult> Update(int id, [FromBody] Product product)

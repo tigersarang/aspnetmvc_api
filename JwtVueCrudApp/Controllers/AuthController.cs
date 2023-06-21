@@ -33,12 +33,19 @@ namespace JwtVueCrudApp.Controllers
         [HttpPost("register")]
         public IActionResult Register([FromBody] User model)
         {
+            if (_dbContext.Users.Any(u => u.UserName == model.UserName))
+            {
+                ModelState.AddModelError("-1", "Username already exists.");
+            }
+
+            if (model.Role == null)
+            {
+                ModelState.AddModelError("-2", "The role value is missing.");
+            }
+
             if (ModelState.IsValid)
             {
-                if (_dbContext.Users.Any(u => u.UserName == model.UserName))
-                {
-                    return BadRequest("Username already exists");
-                }
+
 
                 Role role = _dbContext.Roles.SingleOrDefault(r => r.Id == model.RoleId);
                 

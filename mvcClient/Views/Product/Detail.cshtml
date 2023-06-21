@@ -51,7 +51,7 @@
     <div class="text-center">
         @if (Model.User.Id.ToString() == Context.Session.GetString("UserId"))
         {
-            @Html.ActionLink("Update", "Update", new { id = Model.Id}, new {@class="btn btn-primary me-1"})
+            @Html.ActionLink("Update", "Update", new { id = Model.Id}, new {@class="btn btn-primary me-1", id="btnUpdate"})
             @Html.ActionLink("Delete", "Delete", new { Model.Id }, new {@class="btn btn-danger"})
         }
 

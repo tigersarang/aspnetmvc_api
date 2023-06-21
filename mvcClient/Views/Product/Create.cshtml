@@ -7,8 +7,13 @@
 <h1>Create</h1>
 
 <h4>Product</h4>
+
+
+
 <hr />
 <div class="row">
+
+
     <form asp-action="Create" id="myForm">
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         @*            <div class="form-group">
@@ -41,6 +46,10 @@
             <input id="btnSubmit" type="submit" value="Create" class="btn btn-primary" />
             <a asp-action="Index" class="btn btn-dark">Back to List</a>
         </div>
+
+    <div class="alert-danger">
+        @Html.ValidationSummary()
+    </div>
 
     </form>
 </div>
@@ -94,18 +103,18 @@
                 data: $("#myForm").serialize(),
                 success: function (response) {
                     myDropzone.removeAllFiles();
-                    location.href = "/Home/Privacy";
+                    location.href = response;
                     console.log(response);
                 },
                 error: function (response) {
+                    alert(response.responseJSON.message);
                     console.log(response);
                 }
             });
         });
 
         window.addEventListener("beforeunload", function (e) {
-            for (var i=0; i < myDropzone.files.length; i++)
-            {
+            for (var i = 0; i < myDropzone.files.length; i++) {
                 var file = myDropzone.files[i];
 
                 $.ajax({

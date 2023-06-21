@@ -1,6 +1,7 @@
 ﻿using CommLibs.Dto;
 using CommLibs.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using mvcClient.Utils;
 using Newtonsoft.Json;
 using System.IdentityModel.Tokens.Jwt;
@@ -81,17 +82,25 @@ namespace mvcClient.Controllers
                     return RedirectToAction("Login");
                 }
 
+                var modelStateErrors = await response.Content.ReadFromJsonAsync<Dictionary<string, string[]>>();
+
+                foreach (var oneError in modelStateErrors)
+                {
+                    _logger.LogError("register error : " + oneError.Key + " : " + oneError.Value);
+
+                    foreach (var errorValue in oneError.Value)
+                    {
+                        ModelState.AddModelError(oneError.Key, errorValue);
+                    }
+                }
+
                 var roles = await _apiClient.GetRoles();
-                ModelState.AddModelError("", "회원가입에 실패하였습니다.");
-                _logger.LogError("회원가입에 실패하였습니다.");
                 return View(roles);
             } catch (Exception ex)
             {
                 var roles = await _apiClient.GetRoles();
-                _logger.LogError(ex, "회원가입에 실패하였습니다.");
                 ModelState.AddModelError("", ex.Message);
-
-                return View(roles);
+                return RedirectToAction("Error", "Home", new { message = ex.Message });
             }
         }
         [HttpGet("Logout")]

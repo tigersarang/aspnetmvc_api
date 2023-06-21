@@ -65,6 +65,12 @@ namespace JwtVueCrudApp.Controllers
         {
             try
             {
+
+                if (product.Name == "aaa")
+                {
+                    ModelState.AddModelError("-100", "Cannot use the aaa value.");
+                }
+
                 if (ModelState.IsValid)
                 {
                     // Content 값을 파일로 저장을 합니다. 그리고 저장된 파일의 경로를 Content에 저장합니다.
@@ -91,7 +97,9 @@ namespace JwtVueCrudApp.Controllers
             } catch(Exception ex)
             {
                 _logger.LogError(ex, "Create Error");
-                return BadRequest(ex.Message);
+                ModelState.AddModelError("-999", ex.Message);
+
+                return BadRequest(ModelState);
             }
         }
 
@@ -115,7 +123,7 @@ namespace JwtVueCrudApp.Controllers
                 var saveDir = Path.Combine(AppContext.BaseDirectory, GlobalSettings.Instance.ProductContentPath);
 
                 var contentFilePath = Path.Combine(saveDir, contentFileName);
-                await System.IO.File.WriteAllTextAsync(contentFilePath, product.Content);
+                await System.IO.File.WriteAllTextAsync(contentFilePath, updatedProduct.Content);
 
                 product.Content = contentFilePath;
                 product.Name = updatedProduct.Name;

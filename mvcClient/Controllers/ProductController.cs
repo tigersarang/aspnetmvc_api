@@ -3,15 +3,19 @@ using CommLibs.Models;
 using Microsoft.AspNetCore.Mvc;
 using mvcClient.Models;
 using mvcClient.Utils;
+using Newtonsoft.Json;
 
 namespace mvcClient.Controllers
 {
     public class ProductController : Controller
     {
         private readonly ApiClient _apiClient;
-        public ProductController(ApiClient apiClient)
+        private readonly ILogger<AccountController> _logger;
+
+        public ProductController(ApiClient apiClient, ILogger<AccountController> logger)
         {
             _apiClient = apiClient;
+            _logger = logger;
         }
 
 
@@ -41,7 +45,7 @@ namespace mvcClient.Controllers
             }
             catch (Exception ex)
             {
-                return RedirectToAction("Login","Account");
+                return RedirectToAction("Login", "Account");
             }
         }
 
@@ -71,48 +75,80 @@ namespace mvcClient.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(ProductDto productDto)
         {
-            if (_apiClient.IsTokenExpired())
+            try
             {
-                if (!await _apiClient.RefreshToken())
+                if (_apiClient.IsTokenExpired())
                 {
-                    return RedirectToAction("Login", "Account");
+                    if (!await _apiClient.RefreshToken())
+                    {
+                        return RedirectToAction("Login", "Account");
+                    }
                 }
+
+                _apiClient.SetAccessToken();
+
+                productDto.UserId = int.Parse(HttpContext.Session.GetString("UserId"));
+
+                Product product = new Product
+                {
+                    Name = productDto.Name,
+                    Content = productDto.Content,
+                    UserId = productDto.UserId,
+                    Price = productDto.Price
+                };
+
+                string upDir = Path.Combine(GV.I.RD, GV.I.UD);
+
+                if (Directory.Exists(upDir) == false)
+                {
+                    Directory.CreateDirectory(upDir);
+                }
+
+                List<ProductFile> productFiles = new List<ProductFile>();
+
+                if (productDto.files != null)
+                {
+                    foreach (var file in productDto.files)
+                    {
+                        System.IO.File.Move(Path.Combine(GV.I.RD, file), Path.Combine(upDir, file));
+                        productFiles.Add(new ProductFile { FileName = file.Split("___")[1], LInkFileName = file });
+                    }
+
+                    product.ProductFiles = productFiles;
+                }
+
+                var response = await _apiClient.Create(product);
+                var result = await response.Content.ReadAsStringAsync();
+                if (response.IsSuccessStatusCode)
+                {
+                    var productResult = JsonConvert.DeserializeObject<Product>(result);
+                    return Ok("/Product/Detail/" + productResult.Id);
+                }
+
+                var modelStateErrors = await response.Content.ReadFromJsonAsync<Dictionary<string, string[]>>();
+
+                var oneError = modelStateErrors.FirstOrDefault();
+                _logger.LogError("register error : " + oneError.Key + " : " + oneError.Value);
+
+                ErrorDto errorDto = new ErrorDto
+                {
+                    Id = oneError.Key,
+                    Message = oneError.Value.FirstOrDefault()
+                };
+
+                return BadRequest(errorDto);
+
             }
-
-            _apiClient.SetAccessToken();
-
-            productDto.UserId = int.Parse(HttpContext.Session.GetString("UserId"));
-
-            Product product = new Product
+            catch (Exception ex)
             {
-                Name = productDto.Name,
-                Content = productDto.Content,
-                UserId = productDto.UserId
-            };
+                ErrorDto errorDto = new ErrorDto
+                {
+                    Id = "-999",
+                    Message = ex.Message
+                };
 
-            string upDir = Path.Combine(GV.I.RD, GV.I.UD);
-
-            if (Directory.Exists(upDir) == false)
-            {
-                Directory.CreateDirectory(upDir);
+                return BadRequest(errorDto);
             }
-
-            List<ProductFile> productFiles = new List<ProductFile>();
-
-            foreach (var file in productDto.files)
-            {
-                System.IO.File.Move(Path.Combine(GV.I.RD, file), Path.Combine(upDir, file));
-                productFiles.Add(new ProductFile { FileName = file.Split("___")[1], LInkFileName = file });
-            }
-
-            product.ProductFiles = productFiles;
-            
-            var result = await _apiClient.Create(product);
-            if (result)
-            {
-                return RedirectToAction("Index");
-            }
-            return View(product);
         }
 
         // public IActionResult Update(int id, [FromBody] Product product)
