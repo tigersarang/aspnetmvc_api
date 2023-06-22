@@ -48,7 +48,7 @@ namespace HtmlTest
 
         private async Task ProductAsync()
         {
-            await CreateProductAsync();
+            await ProductTestAsync();
 
             await UpdateProductAsync();
 
@@ -121,12 +121,6 @@ namespace HtmlTest
             ");
 
             await Task.Delay(1000);
-
-            await ProductTestAsync();
-
-            await webView.CoreWebView2.ExecuteScriptAsync($@"
-                alert('All tests are completed.');
-            ");
         }
 
         private async Task ProductTestAsync()
@@ -175,44 +169,7 @@ namespace HtmlTest
         private async Task ReplyTestAsync()
         {
 
-                await webView.CoreWebView2.ExecuteScriptAsync($@"
-                document.getElementById('create').click();
-            ");
-
-                await Task.Delay(2000);
-
-                await webView.CoreWebView2.ExecuteScriptAsync(@"
-                    document.getElementById('Name').value = 'test1';
-                    document.getElementById('Price').value = '1001';
-                    document.getElementById('Content').value = '1001';
-                    document.getElementById('btnSubmit').click();
-                ");
-
-
-                // 기존 서버에 있는 파일 추가.
-                //    await webView.CoreWebView2.ExecuteScriptAsync(@"
-
-                //    var mockFile = {name: 'README.md', size:1111 };      
-                //    myDropzone.displayExistingFile(mockFile);
-                //    document.getElementById('Name').value = 'test1';
-                //    document.getElementById('Price').value = '1001';
-                //    document.getElementById('Content').value = '1001';
-                //    // document.getElementById('btnSubmit').click();
-                //");
-
-                await Task.Delay(2000);
-
-                curProductId = int.Parse(webView.Source.ToString().Split("/").Last());
-            } catch(Exception ex)
-            {
-
-            }
-        }
-
-        private async Task LoginAsync(string username, string password)
-        {
-
-            await webView.CoreWebView2.ExecuteScriptAsync($@"
+                await webView.CoreWebView2.ExecuteScriptAsync($@"             
                 document.getElementById('content').value = 'reply-1';
                 document.getElementById('btnReply').click();
             ");
@@ -240,6 +197,17 @@ namespace HtmlTest
 
             await Task.Delay(1000);
 
+        }
+        private async Task LoginAsync(string username, string password)
+        {
+
+            await webView.CoreWebView2.ExecuteScriptAsync($@"
+                document.getElementById('userName').value = '{username}';
+                document.getElementById('password').value = '{password}';
+                document.getElementById('btnLogin').click();
+            ");
+
+            await Task.Delay(2000);
         }
     }
 }

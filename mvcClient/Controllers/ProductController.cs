@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using mvcClient.Models;
 using mvcClient.Utils;
 using Newtonsoft.Json;
+using NuGet.Packaging;
 
 namespace mvcClient.Controllers
 {
@@ -188,10 +189,7 @@ namespace mvcClient.Controllers
                     response = await _apiClient.Create(product);
 
                 }
-                    product.ProductFiles = productFiles;
-                }
 
-                var response = await _apiClient.Create(product);
                 var result = await response.Content.ReadAsStringAsync();
                 if (response.IsSuccessStatusCode)
                 {
@@ -222,22 +220,6 @@ namespace mvcClient.Controllers
                 };
 
                 return BadRequest(errorDto);
-            }
-        }
-
-                var result = await response.Content.ReadAsStringAsync();
-                if (response.IsSuccessStatusCode)
-                {
-                    var productResult = JsonConvert.DeserializeObject<Product>(result);
-                    return Ok($"/Product/Detail/{productResult.Id}");
-                }
-
-            _apiClient.SetAccessToken();
-
-            }
-            catch (Exception ex)
-            {
-                return RedirectToAction("Error", "Home", new ErrorViewModel { Message = "Failed to create the project" });
             }
         }
 

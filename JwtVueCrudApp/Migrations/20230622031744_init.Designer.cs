@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace JwtVueCrudApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230620083339_filesCascade")]
-    partial class filesCascade
+    [Migration("20230622031744_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

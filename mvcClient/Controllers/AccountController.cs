@@ -2,6 +2,7 @@
 using CommLibs.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using mvcClient.Models;
 using mvcClient.Utils;
 using Newtonsoft.Json;
 using System.IdentityModel.Tokens.Jwt;

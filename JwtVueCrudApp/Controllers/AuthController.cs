@@ -38,7 +38,7 @@ namespace JwtVueCrudApp.Controllers
                 ModelState.AddModelError("-1", "Username already exists.");
             }
 
-            if (model.Role == null)
+            if (model.RoleId == null)
             {
                 ModelState.AddModelError("-2", "The role value is missing.");
             }
@@ -56,7 +56,7 @@ namespace JwtVueCrudApp.Controllers
                 return Ok();
             }
 
-            return BadRequest(new { message = "faile to register." });
+            return BadRequest(ModelState);
 
         }
 
