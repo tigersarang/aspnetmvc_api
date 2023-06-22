@@ -36,15 +36,37 @@ namespace HtmlTest
         private async void _vm_TestRequested(string username, string password)
         {
             await webView.EnsureCoreWebView2Async();
-
-            webView.CoreWebView2.Navigate("https://localhost:7188/Account/Login");
-
-            await Task.Delay(1000);
                         
             await LoginAsync(username, password);
 
             await ProductAsync();
         }
+
+        private async Task LoginAsync(string username, string password)
+        {
+            webView.CoreWebView2.Navigate("https://localhost:7188/Account/Register");
+
+            await Task.Delay(1000);
+
+            await webView.CoreWebView2.ExecuteScriptAsync($@"
+                document.getElementById('userName').value = '{username}';
+                document.getElementById('password').value = '{password}';
+                let radioButtons = document.querySelectorAll('input[type=radio][name=roleId]');
+                radioButtons[1].checked = true;
+                document.getElementById('btnRegister').click();
+            ");
+
+            await Task.Delay(1000);
+
+            await webView.CoreWebView2.ExecuteScriptAsync($@"
+                document.getElementById('userName').value = '{username}';
+                document.getElementById('password').value = '{password}';
+                document.getElementById('btnLogin').click();
+            ");
+
+            await Task.Delay(2000);
+        }
+
 
         private async Task ProductAsync()
         {
@@ -197,17 +219,6 @@ namespace HtmlTest
 
             await Task.Delay(1000);
 
-        }
-        private async Task LoginAsync(string username, string password)
-        {
-
-            await webView.CoreWebView2.ExecuteScriptAsync($@"
-                document.getElementById('userName').value = '{username}';
-                document.getElementById('password').value = '{password}';
-                document.getElementById('btnLogin').click();
-            ");
-
-            await Task.Delay(2000);
         }
     }
 }

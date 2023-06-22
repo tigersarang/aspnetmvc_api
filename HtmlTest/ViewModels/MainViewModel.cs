@@ -23,7 +23,7 @@ namespace HtmlTest.ViewModels
 
         private void Test(object? obj)
         {
-            TestRequested.Invoke("aaa", "11111111");
+            TestRequested.Invoke("fff", "11111111");
         }
 
         public ICommand TestCommand { get; set; }
