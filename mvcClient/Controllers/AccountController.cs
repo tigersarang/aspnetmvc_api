@@ -30,7 +30,7 @@ namespace mvcClient.Controllers
             return View();
         }
         [HttpPost]
-        public async Task<IActionResult> Login(string userName, string password, string returnUrl)
+        public async Task<IActionResult> Login(string userName, string password, string? returnUrl)
         {
             try
             {
