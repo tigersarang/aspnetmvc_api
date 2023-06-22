@@ -5,6 +5,7 @@
 <h2>Login</h2>
 
 <form asp-controller="Account" asp-action="Login" method="post">
+    <input type="hidden" name="returnUrl" value="@ViewData["returnUrl"]" />
     <div class="form-group">
         <label for="userName">Username</label>
         <input type="text" class="form-control" id="userName" name="userName" placeholder="Enter username" required>

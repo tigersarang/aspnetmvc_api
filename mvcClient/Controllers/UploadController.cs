@@ -1,11 +1,24 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using CommLibs.Dto;
+using CommLibs.Models;
+using Microsoft.AspNetCore.Mvc;
 using mvcClient.Models;
+using mvcClient.Utils;
 
 namespace mvcClient.Controllers
 {
     [Route("[controller]/[action]")]
     public class UploadController : Controller
     {
+        private readonly ApiClient _apiClient;
+        private readonly ILogger<UploadController> _logger;
+
+        public UploadController(ApiClient apiClient, ILogger<UploadController> logger)
+        {
+            _apiClient = apiClient;
+            _logger = logger;
+        }
+
+
         [HttpPost]
         public async Task<IActionResult> UploadFiles(IFormFile file)
         {
@@ -13,7 +26,7 @@ namespace mvcClient.Controllers
             {
                 if (file == null)
                 {
-                    return BadRequest("파일 사이즈가 너무 크거나 지원되지 않는 확장자입니다.");
+                    return BadRequest("The file size is too large or the extension is not supported.");
                 }
 
                 string newFileName = Guid.NewGuid().ToString() + "___" + Path.GetFileName(file.FileName);
@@ -64,6 +77,68 @@ namespace mvcClient.Controllers
             }
         }
 
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteFile([FromBody] DeleteDto deleteDto)
+        {
+
+            try
+            {
+                string filePath = string.Empty;
+                if (deleteDto == null)
+                {
+                    return BadRequest(new { message = "삭제할 파일정보가 null입니다." });
+                }
+
+                // if the id is not null, it is a case of deletion from the modification screen.
+                // In this case, because it's a deleteion of a file stored in the database, we add a database deletion operation.
+
+                if (deleteDto.Id != null )
+                {
+                    if (_apiClient.IsTokenExpired())
+                    {
+                        if (!await _apiClient.RefreshToken())
+                        {
+                            return RedirectToAction("Login", "Account");
+                        }
+                    }
+
+                    _apiClient.SetAccessToken();
+
+                    ProductFile productFile = await _apiClient.GetFile(deleteDto.Id.Value);
+                    filePath = Path.Combine(Directory.GetCurrentDirectory(), GV.I.RD, GV.I.UD, productFile.LInkFileName);
+
+                    if (deleteDto.IsDbDelete.GetValueOrDefault() == true)
+                    {
+                        var response = await _apiClient.DeleteFile(deleteDto.Id.Value);
+
+                        if (response == false)
+                        {
+                            return BadRequest(new { message = "There was an error deleting the file from the database." });
+                        }
+                    }
+                }
+
+                filePath = Path.Combine(Directory.GetCurrentDirectory(), GV.I.RD, GV.I.UD, filePath);
+                if (System.IO.File.Exists(filePath))
+                {
+                    System.IO.File.Delete(filePath);
+                }
+
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return BadRequest(new { message = "error. " });
+            }
+            finally
+            {
+            }
+
+        }
+
         [HttpDelete("{fileName}")]
         public IActionResult DeleteFile(string fileName)
         {
@@ -86,11 +161,13 @@ namespace mvcClient.Controllers
                 System.IO.File.Delete(path);
 
                 return Ok();
-            } catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
-        }   
+        }
+
 
         private string GetContentType(string path)
         {

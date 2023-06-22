@@ -39,10 +39,15 @@
             <textarea asp-for="Content" class="form-control summernote"></textarea>
         </div>
         <div cite="form-control">
-            <p>업로드 파일</p>
+            @if (Model.ProductFiles.Count() > 0)
+            {
+                <p>Uploaded files</p>
+            }
             @foreach (var file in Model.ProductFiles)
             {
-              <a href="/Upload/DownloadFile/@Html.Raw(System.Net.WebUtility.UrlEncode(file.LInkFileName))">@file.FileName</a><br />
+                <input type="hidden" id="productFiles" value="@file.Id" />
+                <a href="/Upload/DownloadFile/@Html.Raw(System.Net.WebUtility.UrlEncode(file.LInkFileName))">@file.FileName</a>
+                <br />
             }
         </div>
 
@@ -51,8 +56,8 @@
     <div class="text-center">
         @if (Model.User.Id.ToString() == Context.Session.GetString("UserId"))
         {
-            @Html.ActionLink("Update", "Update", new { id = Model.Id}, new {@class="btn btn-primary me-1", id="btnUpdate"})
-            @Html.ActionLink("Delete", "Delete", new { Model.Id }, new {@class="btn btn-danger"})
+            @Html.ActionLink("Update", "Create", new { id = Model.Id}, new {@class="btn btn-primary me-1", id = "btnUpdate"})
+            <button class="btn btn-danger" id="btnDelete">Delete</button>
         }
 
         <a href="#" class="btn btn-dark" onclick="history.back()">Back to List</a>
@@ -108,10 +113,8 @@
             $("#btnReply").click(function () {
                 let reply = {
                     id: 0,
-                    content: $("#content").val(),
-                    productId: @Model.Id
-
-                                                };
+                    content: $("#content").val()
+                };
 
                 $.ajax({
                     url: "/Reply/Create",
@@ -127,17 +130,17 @@
 
                         $("#comment-list").after(
                             `
-                                            <div class="d-flex text-muted pt-3" id="comment-${data.id}">
+                                                                                                    <div class="d-flex text-muted pt-3" id="comment-${data.id}">
 
-                                                <div class="pb-3 mb-0 small lh-sm border-bottom w-100">
-                                                    <div class="d-flex justify-content-between">
-                                                        <strong class="text-gray-dark">${data.content}</strong>
-                                                           <button class="badge btn-danger" id="btnReplyDelete" data-comment-id="${data.id}">삭제</button>
-                                                    </div>
-                                                            <span class="d-block text-end">${data.user.userName}, ${convDate}</span>
-                                                </div>
-                                            </div>
-                                                            `
+                                                                                                        <div class="pb-3 mb-0 small lh-sm border-bottom w-100">
+                                                                                                            <div class="d-flex justify-content-between">
+                                                                                                                <strong class="text-gray-dark">${data.content}</strong>
+                                                                                                                   <button class="badge btn-danger" id="btnReplyDelete" data-comment-id="${data.id}">삭제</button>
+                                                                                                            </div>
+                                                                                                                    <span class="d-block text-end">${data.user.userName}, ${convDate}</span>
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                                    `
                         );
                     },
                     error: function (e) {
@@ -158,6 +161,45 @@
                         alert(data);
                     }
                 });
+            });
+
+            $(document).on('click', '#btnDelete', function () {
+                //if (confirm("Are you sure to delete?")) {
+
+                    let count = document.getElementById("productFiles");
+
+                    if (count != null) {
+                        for (var i = 0; i < productFiles.length; i++) {
+                            let deleteFile = {
+                                id: productFiles[i].value,
+                                IsDbDelete: false
+                            };
+
+                            $.ajax({
+                                url: "/Upload/DeleteFile/",
+                                type: "Delete",
+                                async: false,
+                                data: JSON.stringify(deleteFile),
+                                contentType: "application/json; charset=utf-8",
+                                success: function (data) {
+                                },
+                                error: function (data) {
+                                    alert("There was an error deleting the file.");
+                                }
+                            });
+                        }
+                    }
+                    $.ajax({
+                        url: "/Product/Delete/" + @Model.Id,
+                        type: "Delete",
+                        success: function (data) {
+                            location.href = "/Product/Index";
+                        },
+                        error: function (data) {
+                            alert("error : " + @Model.Id);
+                        }
+                    });
+                //}
             });
         });
 

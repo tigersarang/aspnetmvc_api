@@ -77,9 +77,14 @@ namespace JwtVueCrudApp.Migrations
                     b.Property<int?>("ProductId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("ProductId1")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ProductId");
+
+                    b.HasIndex("ProductId1");
 
                     b.ToTable("ProductFiles");
                 });
@@ -183,9 +188,14 @@ namespace JwtVueCrudApp.Migrations
 
             modelBuilder.Entity("CommLibs.Models.ProductFile", b =>
                 {
-                    b.HasOne("CommLibs.Models.Product", "Product")
+                    b.HasOne("CommLibs.Models.Product", null)
                         .WithMany("ProductFiles")
-                        .HasForeignKey("ProductId");
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("CommLibs.Models.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId1");
 
                     b.Navigation("Product");
                 });

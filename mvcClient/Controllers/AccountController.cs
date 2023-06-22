@@ -25,10 +25,11 @@ namespace mvcClient.Controllers
         [HttpGet]
         public IActionResult Login()
         {
+            ViewData["returnUrl"] = TempData["returnUrl"];
             return View();
         }
         [HttpPost]
-        public async Task<IActionResult> Login(string userName, string password)
+        public async Task<IActionResult> Login(string userName, string password, string returnUrl)
         {
             try
             {
@@ -50,16 +51,30 @@ namespace mvcClient.Controllers
                     HttpContext.Session.SetString("TokenExpiration", JwtDecoder.GetExpirationDate(token.Token).ToString());
                     HttpContext.Session.SetString("refreshToken", token.RefreshToken);
                     HttpContext.Session.SetString("UserName", userName);
-                    return RedirectToAction("Index", "Home");
+
+                    if (string.IsNullOrEmpty(returnUrl))
+                    {
+                        return RedirectToAction("Index", "Home");
+                    } else
+                    {
+                        return Redirect(returnUrl);
+                    }
+                }
+                else
+                {
+                    var result = await response.Content.ReadAsStringAsync();
+                    var error = JsonConvert.DeserializeObject<ErrorViewModel>(result);
+
+                    ModelState.AddModelError("", error.Message);
+                    return View();
                 }
 
-                ModelState.AddModelError("", "로그인에 실패하였습니다.");
-                return View();
-            } catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "로그인에 실패하였습니다.");
-                ModelState.AddModelError("", ex.Message);
-                
+                ModelState.AddModelError("", "Failed to login.");
+
                 return View();
             }
         }
@@ -96,7 +111,8 @@ namespace mvcClient.Controllers
 
                 var roles = await _apiClient.GetRoles();
                 return View(roles);
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 var roles = await _apiClient.GetRoles();
                 ModelState.AddModelError("", ex.Message);
