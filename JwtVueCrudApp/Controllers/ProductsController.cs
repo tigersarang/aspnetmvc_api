@@ -146,8 +146,12 @@ namespace JwtVueCrudApp.Controllers
                     var contentFileName = $"{Guid.NewGuid()}.txt";
                     var saveDir = Path.Combine(AppContext.BaseDirectory, GlobalSettings.Instance.ProductContentPath);
 
-                var contentFilePath = Path.Combine(saveDir, contentFileName);
-                await System.IO.File.WriteAllTextAsync(contentFilePath, updatedProduct.Content);
+                    if (Directory.Exists(saveDir) == false)
+                    {
+                        Directory.CreateDirectory(saveDir);
+                    }
+                    var contentFilePath = Path.Combine(saveDir, contentFileName);
+                    await System.IO.File.WriteAllTextAsync(contentFilePath, updatedProduct.Content);
 
                     product.Content = contentFilePath;
                     product.Name = updatedProduct.Name;
