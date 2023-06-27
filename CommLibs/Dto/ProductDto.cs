@@ -16,8 +16,6 @@ namespace CommLibs.Dto
 
         public string Name { get; set; }
 
-        public decimal Price { get; set; }
-
         public string Content { get; set; }
 
         public List<string>? files { get; set; }

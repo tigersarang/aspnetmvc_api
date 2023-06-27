@@ -160,7 +160,6 @@ namespace JwtVueCrudApp.Controllers
 
                     product.Content = contentFilePath;
                     product.Name = updatedProduct.Name;
-                    product.Price = updatedProduct.Price;
                     product.UpdatedDate = DateTime.Now;
                     product.ProductFiles = updatedProduct.ProductFiles;
 

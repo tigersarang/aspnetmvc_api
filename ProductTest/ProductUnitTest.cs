@@ -33,7 +33,6 @@ namespace ProductTest
             {
                 Name = "Test Product",
                 Content = "Test Description",
-                Price = 100,
                 UserId = 1
             };
             // Act
@@ -61,7 +60,6 @@ namespace ProductTest
             {
                 Name = "Test Product",
                 Content = "Test Description",
-                Price = 100,
                 UserId = 1
             };
             // Act
@@ -96,7 +94,6 @@ namespace ProductTest
             {
                 Name = "Test Product",
                 Content = "Test Description",
-                Price = 100,
                 UserId = 1
             };
             // Act
@@ -106,7 +103,6 @@ namespace ProductTest
             {
                 Name = "Test Product1",
                 Content = "Test Description1",
-                Price = 1000,
                 UserId = 1
             };
             // Act
