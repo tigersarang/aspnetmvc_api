@@ -130,8 +130,21 @@ namespace mvcClient.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(ProductDto productDto)
         {
+            ErrorDto errorDto = new ErrorDto();
+
             try
             {
+                if (ModelState.IsValid == false)
+                {
+                    errorDto = new ErrorDto
+                    {
+                        Id = "-999",
+                        Message = "Please enter the required information."
+                    };
+
+                    return BadRequest(errorDto);
+                }
+
                 if (_apiClient.IsTokenExpired())
                 {
                     if (!await _apiClient.RefreshToken())
@@ -197,23 +210,36 @@ namespace mvcClient.Controllers
                     return Ok("/Product/Detail/" + productResult.Id);
                 }
 
-                var modelStateErrors = await response.Content.ReadFromJsonAsync<Dictionary<string, string[]>>();
-
-                var oneError = modelStateErrors.FirstOrDefault();
-                _logger.LogError("register error : " + oneError.Key + " : " + oneError.Value);
-
-                ErrorDto errorDto = new ErrorDto
+                try
                 {
-                    Id = oneError.Key,
-                    Message = oneError.Value.FirstOrDefault()
-                };
+                    var modelStateErrors = await response.Content.ReadFromJsonAsync<Dictionary<string, string[]>>();
+                    var oneError = modelStateErrors.FirstOrDefault();
+                    _logger.LogError("register error : " + oneError.Key + " : " + oneError.Value);
+
+                    errorDto = new ErrorDto
+                    {
+                        Id = oneError.Key,
+                        Message = oneError.Value.FirstOrDefault()
+                    };
+                } catch(Exception ex)
+                {
+                    errorDto = new ErrorDto
+                    {
+                        Id = "-999",
+                        Message = result
+                    };
+
+                    return BadRequest(errorDto);
+                }
+
+
 
                 return BadRequest(errorDto);
 
             }
             catch (Exception ex)
             {
-                ErrorDto errorDto = new ErrorDto
+                errorDto = new ErrorDto
                 {
                     Id = "-999",
                     Message = ex.Message

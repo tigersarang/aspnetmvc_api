@@ -20,7 +20,7 @@ namespace CommLibs.Dto
 
         public string Content { get; set; }
 
-        public List<string> files { get; set; }
+        public List<string>? files { get; set; }
 
         public int? UserId { get; set; }
 

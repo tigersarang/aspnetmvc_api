@@ -90,6 +90,10 @@ namespace JwtVueCrudApp.Controllers
                 {
                     ModelState.AddModelError("-100", "Cannot use the aaa value.");
                 }
+                if (string.IsNullOrEmpty(product.Content))
+                {
+                    ModelState.AddModelError("-100", "Content is null.");
+                }
 
                 if (ModelState.IsValid)
                 {
@@ -113,7 +117,8 @@ namespace JwtVueCrudApp.Controllers
                     await _dbContext.SaveChangesAsync();
                     return Ok(product);
                 }
-                return BadRequest(new { message = "Failed to create the product list. " });
+                ModelState.AddModelError("-99", "Failed to create the product list. ");
+                return BadRequest(ModelState);
 
             }
             catch (Exception ex)
