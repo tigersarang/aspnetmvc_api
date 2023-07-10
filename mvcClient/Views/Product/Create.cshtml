@@ -124,7 +124,8 @@ else
             url: "/Upload/UploadFiles",
             paramName: "file",
             maxFiles: 10,
-            maxFilesize: 100, // mb
+            extends: "jpg,jpeg,png,gif,zip,exe,mp4",
+            maxFilesize: 5000, // mb
             addRemoveLinks: true,
             success: function (file, response) {
                 file.upload.newFileName = response.newFileName;

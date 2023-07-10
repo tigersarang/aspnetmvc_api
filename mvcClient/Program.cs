@@ -14,7 +14,7 @@ Log.Logger = new LoggerConfiguration()
 
 builder.Services.Configure<KestrelServerOptions>(options =>
 {
-    options.Limits.MaxRequestBodySize = 52428800 * 4; // 200MB
+    options.Limits.MaxRequestBodySize = 4294967296; // 200MB
 });
 
 builder.Services.AddAuthentication(options =>
@@ -46,7 +46,11 @@ GV.I = builder.Configuration.GetSection("GV").Get<GV>();
 
 builder.Services.AddHttpClient<ApiClient>(client =>
 {
+#if DEBUG
     client.BaseAddress = new Uri("https://localhost:7009/api/");
+#else
+    client.BaseAddress = new Uri("https://blogserver.allres.co.kr/api/");
+#endif
 });
 
 var app = builder.Build();
