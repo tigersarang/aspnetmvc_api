@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "qUOQOc9pyYG9XI0cWReq8zMHljXU17w1NkdbGlsqO4KgV8DRF6gAjUiIV3xYVGyF3cojLvdSYVSxNdHbhKeFQA==",
+  "success": true,
+  "projectFilePath": "G:\\project\\dotnetBoard\\HtmlTest\\HtmlTest.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\tiger\\.nuget\\packages\\microsoft.web.webview2\\1.0.1823.32\\microsoft.web.webview2.1.0.1823.32.nupkg.sha512"
+  ],
+  "logs": []
+}
