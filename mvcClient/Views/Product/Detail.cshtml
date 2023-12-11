@@ -101,6 +101,13 @@
                     }
                 });
             });
+
+            $(".delete-command").click( function() {
+                $.ajax({
+                    url: "/Reply/Delete",
+                    type: "POST",
+                });
+            });
         });
 
         $(".summernote").summernote({
