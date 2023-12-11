@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "G:\\project\\dotnetBoard\\mvcClient\\mvcClient.csproj": {}
+    "C:\\study\\mvcClient\\mvcClient.csproj": {}
   },
   "projects": {
-    "G:\\project\\dotnetBoard\\CommLibs\\CommLibs.csproj": {
+    "C:\\study\\CommLibs\\CommLibs.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "G:\\project\\dotnetBoard\\CommLibs\\CommLibs.csproj",
+        "projectUniqueName": "C:\\study\\CommLibs\\CommLibs.csproj",
         "projectName": "CommLibs",
-        "projectPath": "G:\\project\\dotnetBoard\\CommLibs\\CommLibs.csproj",
+        "projectPath": "C:\\study\\CommLibs\\CommLibs.csproj",
         "packagesPath": "C:\\Users\\tiger\\.nuget\\packages\\",
-        "outputPath": "G:\\project\\dotnetBoard\\CommLibs\\obj\\",
+        "outputPath": "C:\\study\\CommLibs\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -66,18 +66,18 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.100-rc.1.23455.8\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.302\\RuntimeIdentifierGraph.json"
         }
       }
     },
-    "G:\\project\\dotnetBoard\\mvcClient\\mvcClient.csproj": {
+    "C:\\study\\mvcClient\\mvcClient.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "G:\\project\\dotnetBoard\\mvcClient\\mvcClient.csproj",
+        "projectUniqueName": "C:\\study\\mvcClient\\mvcClient.csproj",
         "projectName": "mvcClient",
-        "projectPath": "G:\\project\\dotnetBoard\\mvcClient\\mvcClient.csproj",
+        "projectPath": "C:\\study\\mvcClient\\mvcClient.csproj",
         "packagesPath": "C:\\Users\\tiger\\.nuget\\packages\\",
-        "outputPath": "G:\\project\\dotnetBoard\\mvcClient\\obj\\",
+        "outputPath": "C:\\study\\mvcClient\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -93,14 +93,15 @@
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "C:\\Program Files\\dotnet\\library-packs": {},
+          "C:\\Program Files\\dotnet\\sdk\\7.0.302\\Sdks\\Microsoft.NET.Sdk.Web\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net6.0": {
             "targetAlias": "net6.0",
             "projectReferences": {
-              "G:\\project\\dotnetBoard\\CommLibs\\CommLibs.csproj": {
-                "projectPath": "G:\\project\\dotnetBoard\\CommLibs\\CommLibs.csproj"
+              "C:\\study\\CommLibs\\CommLibs.csproj": {
+                "projectPath": "C:\\study\\CommLibs\\CommLibs.csproj"
               }
             }
           }
@@ -163,7 +164,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.100-rc.1.23455.8\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.302\\RuntimeIdentifierGraph.json"
         }
       }
     }

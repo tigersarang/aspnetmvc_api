@@ -1,0 +1,12 @@
+C:\study\CommLibs\bin\Debug\net6.0\CommLibs.deps.json
+C:\study\CommLibs\bin\Debug\net6.0\CommLibs.dll
+C:\study\CommLibs\bin\Debug\net6.0\CommLibs.pdb
+C:\study\CommLibs\obj\Debug\net6.0\CommLibs.csproj.AssemblyReference.cache
+C:\study\CommLibs\obj\Debug\net6.0\CommLibs.GeneratedMSBuildEditorConfig.editorconfig
+C:\study\CommLibs\obj\Debug\net6.0\CommLibs.AssemblyInfoInputs.cache
+C:\study\CommLibs\obj\Debug\net6.0\CommLibs.AssemblyInfo.cs
+C:\study\CommLibs\obj\Debug\net6.0\CommLibs.csproj.CoreCompileInputs.cache
+C:\study\CommLibs\obj\Debug\net6.0\CommLibs.dll
+C:\study\CommLibs\obj\Debug\net6.0\refint\CommLibs.dll
+C:\study\CommLibs\obj\Debug\net6.0\CommLibs.pdb
+C:\study\CommLibs\obj\Debug\net6.0\ref\CommLibs.dll

@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "MDAgxTBTavSTHC5bYsYKeydcuMnIa4Ie0+mUg7wUvb0Z5/hMGChDazHpH58Yko+V8NrxxtoO2ECm0DvH1A7p+g==",
+  "dgSpecHash": "xk6R7toF4EWXw+YUpWIHNxSf/pl/OVTiaBKHUvghUuwoOc6yjgvSfRuF8yuTuTMdEolyqtx/NsH23RK5aAEHVA==",
   "success": true,
-  "projectFilePath": "G:\\project\\dotnetBoard\\mvcClient\\mvcClient.csproj",
+  "projectFilePath": "C:\\study\\mvcClient\\mvcClient.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\tiger\\.nuget\\packages\\humanizer.core\\2.2.0\\humanizer.core.2.2.0.nupkg.sha512",
     "C:\\Users\\tiger\\.nuget\\packages\\messagepack\\2.1.152\\messagepack.2.1.152.nupkg.sha512",

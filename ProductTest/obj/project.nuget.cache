@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "PkFE0/tQqCQ+nT5t/dNYmzTI+uBbw8IAx4a5xyYfiqQ6P6gC8nqcMBJdVMvDcp9lnwQTWPZJHBQNGnviTZemDA==",
+  "dgSpecHash": "+Z5GfyPHlHhVSDrzTVUZfFHgf4ixSjytpBdqQT475k0BvUqVPM/eh7sVI0JmHgdGRD8EBMXOCthv5hz2JwAgqg==",
   "success": true,
-  "projectFilePath": "G:\\project\\dotnetBoard\\ProductTest\\ProductTest.csproj",
+  "projectFilePath": "C:\\study\\ProductTest\\ProductTest.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\tiger\\.nuget\\packages\\automapper\\12.0.1\\automapper.12.0.1.nupkg.sha512",
     "C:\\Users\\tiger\\.nuget\\packages\\azure.core\\1.24.0\\azure.core.1.24.0.nupkg.sha512",

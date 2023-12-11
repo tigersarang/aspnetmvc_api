@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "UVPPcUDvUUVAQmqmuyG27CIY+XAQ7xbBFqtr3Dtuzexjn/sdR0mkQKx4oU32HQM4KcxrHopw8HSntmsRKXnVyg==",
+  "dgSpecHash": "1lAPP9IXaZWCUql+S4V1iVObWOPfUDLBnPOkIuBRuC27KRylvoqLi3pLqF0C3/lM8FFsP67YvORGrt/pCANceA==",
   "success": true,
-  "projectFilePath": "G:\\project\\dotnetBoard\\CommLibs\\CommLibs.csproj",
+  "projectFilePath": "C:\\study\\CommLibs\\CommLibs.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\tiger\\.nuget\\packages\\microsoft.entityframeworkcore\\7.0.5\\microsoft.entityframeworkcore.7.0.5.nupkg.sha512",
     "C:\\Users\\tiger\\.nuget\\packages\\microsoft.entityframeworkcore.abstractions\\7.0.5\\microsoft.entityframeworkcore.abstractions.7.0.5.nupkg.sha512",

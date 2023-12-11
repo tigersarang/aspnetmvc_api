@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "gidAjoDw8EYYg6kTo7Ab4rMqvO3yaD0FI73egbrod/FGnAUT3re/pF8/Svj3GEPIfMNCx+auuQukHB1dlzsQjQ==",
+  "dgSpecHash": "Rw+w4FK9JS1rtDUCsyoCjHcZZwzX0S8Khla9XyLsATz6r6FW2IiJqdccAkcJSp+0l0xSGXOLgcpXoG6OQ3ML7g==",
   "success": true,
-  "projectFilePath": "G:\\project\\dotnetBoard\\JwtVueCrudApp\\JwtVueCrudApp.csproj",
+  "projectFilePath": "C:\\study\\JwtVueCrudApp\\JwtVueCrudApp.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\tiger\\.nuget\\packages\\automapper\\12.0.1\\automapper.12.0.1.nupkg.sha512",
     "C:\\Users\\tiger\\.nuget\\packages\\azure.core\\1.24.0\\azure.core.1.24.0.nupkg.sha512",

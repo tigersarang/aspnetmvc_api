@@ -6026,11 +6026,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "G:\\project\\dotnetBoard\\ProductTest\\ProductTest.csproj",
+      "projectUniqueName": "C:\\study\\ProductTest\\ProductTest.csproj",
       "projectName": "ProductTest",
-      "projectPath": "G:\\project\\dotnetBoard\\ProductTest\\ProductTest.csproj",
+      "projectPath": "C:\\study\\ProductTest\\ProductTest.csproj",
       "packagesPath": "C:\\Users\\tiger\\.nuget\\packages\\",
-      "outputPath": "G:\\project\\dotnetBoard\\ProductTest\\obj\\",
+      "outputPath": "C:\\study\\ProductTest\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -6052,8 +6052,8 @@
         "net6.0": {
           "targetAlias": "net6.0",
           "projectReferences": {
-            "G:\\project\\dotnetBoard\\JwtVueCrudApp\\JwtVueCrudApp.csproj": {
-              "projectPath": "G:\\project\\dotnetBoard\\JwtVueCrudApp\\JwtVueCrudApp.csproj"
+            "C:\\study\\JwtVueCrudApp\\JwtVueCrudApp.csproj": {
+              "projectPath": "C:\\study\\JwtVueCrudApp\\JwtVueCrudApp.csproj"
             }
           }
         }
@@ -6105,7 +6105,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.100-rc.1.23455.8\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.302\\RuntimeIdentifierGraph.json"
       }
     }
   }

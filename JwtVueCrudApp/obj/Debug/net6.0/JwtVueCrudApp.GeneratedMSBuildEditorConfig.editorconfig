@@ -9,15 +9,13 @@ build_property.EnforceExtendedAnalyzerRules =
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = JwtVueCrudApp
 build_property.RootNamespace = JwtVueCrudApp
-build_property.ProjectDir = G:\project\dotnetBoard\JwtVueCrudApp\
-build_property.EnableComHosting = 
-build_property.EnableGeneratedComInterfaceComImportInterop = 
+build_property.ProjectDir = C:\study\JwtVueCrudApp\
 build_property.RazorLangVersion = 6.0
 build_property.SupportLocalizedComponentNames = 
 build_property.GenerateRazorMetadataSourceChecksumAttributes = 
-build_property.MSBuildProjectDirectory = G:\project\dotnetBoard\JwtVueCrudApp
+build_property.MSBuildProjectDirectory = C:\study\JwtVueCrudApp
 build_property._RazorSourceGeneratorDebug = 
 
-[G:/project/dotnetBoard/JwtVueCrudApp/Views/Admin/Index.cshtml]
+[C:/study/JwtVueCrudApp/Views/Admin/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
