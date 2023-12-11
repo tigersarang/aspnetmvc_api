@@ -24,21 +24,28 @@ namespace JwtVueCrudApp.Controllers
 
         // GET: api/products
         [HttpGet]
-        public async Task<IActionResult> GetAll([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string? search = null)            
+        public async Task<IActionResult> GetAll([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string? search = null)
         {
-            if (pageNumber < 1 || pageSize < 1) return BadRequest();
-
-            IQueryable<Product> query = _dbContext.Products;
-
-            if (!string.IsNullOrEmpty(search))
+            try
             {
-                query = query.Where(p => p.Name.Contains(search)).AsNoTracking();
+                if (pageNumber < 1 || pageSize < 1) return BadRequest();
+
+                IQueryable<Product> query = _dbContext.Products;
+
+                if (!string.IsNullOrEmpty(search))
+                {
+                    query = query.Where(p => p.Name.Contains(search)).AsNoTracking();
+                }
+
+                var pagedResult = await query.Include(u => u.User).OrderByDescending(p => p.Id).ToPagedResultAsync(pageNumber, pageSize);
+
+                return Ok(pagedResult);
             }
-
-            var pagedResult = await query.Include(u => u.User).OrderByDescending(p => p.Id).ToPagedResultAsync(pageNumber, pageSize);
-
-            return Ok(pagedResult);
-
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return BadRequest(new { message = "Failed to fetch the product list. " });
+            }
         }
 
         // GET: api/products/{id}
@@ -47,17 +54,28 @@ namespace JwtVueCrudApp.Controllers
         {
             try
             {
-                var product = await _dbContext.Products.Include(r => r.Replies).FirstAsync(p => p.Id == id);
-
+                var product = await _dbContext.Products.Include(u => u.User).Include(f => f.ProductFiles).FirstOrDefaultAsync(p => p.Id == id);
                 if (product == null)
                 {
-                    return NotFound();
+                    return NotFound(new { message = "Failed to fetch product information" });
+                }
+
+                // product.Content에 저장된 파일의 내용을 읽어서 Content에 저장합니다.
+                product.Content = await System.IO.File.ReadAllTextAsync(product.Content);
+
+                var replies = await _dbContext.Replies.Include(ru => ru.User).Where(r => r.ProductId == id).OrderByDescending(o => o.Id).ToListAsync();
+                product.Replies = replies;
+
+                if (product.ProductFiles == null)
+                {
+                    product.ProductFiles = new List<ProductFile>();
                 }
                 return Ok(product);
-            } catch(Exception ex)
+            }
+            catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occured while getting product by id");
-                return BadRequest(ex.Message);
+                _logger.LogError(ex, "GetById Error");
+                return BadRequest(new { message = "Failed to fetch the product list. " });
             }
         }
 
@@ -65,52 +83,118 @@ namespace JwtVueCrudApp.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] Product product)
         {
-            if (ModelState.IsValid)
+            try
             {
-                User user = await _dbContext.Users.FirstAsync(u => u.Id == product.UserId);
-                product.User = user;
-                await _dbContext.Products.AddAsync(product);
-                await _dbContext.SaveChangesAsync();
-                return NoContent();
+
+                if (product.Name == "aaa")
+                {
+                    ModelState.AddModelError("-100", "Cannot use the aaa value.");
+                }
+                if (string.IsNullOrEmpty(product.Content))
+                {
+                    ModelState.AddModelError("-100", "Content is null.");
+                }
+
+                if (ModelState.IsValid)
+                {
+                    // Content 값을 파일로 저장을 합니다. 그리고 저장된 파일의 경로를 Content에 저장합니다.
+                    var contentPath = GlobalSettings.Instance.ProductContentPath;
+                    var contentFileName = $"{Guid.NewGuid()}.txt";
+                    var saveDir = Path.Combine(AppContext.BaseDirectory, contentPath);
+
+                    //saveDir가 없으면 생성
+                    if (!Directory.Exists(saveDir))
+                    {
+                        Directory.CreateDirectory(saveDir);
+                    }
+
+                    var contentFilePath = Path.Combine(saveDir, contentFileName);
+                    await System.IO.File.WriteAllTextAsync(contentFilePath, product.Content);
+
+                    product.Content = contentFilePath;
+
+                    await _dbContext.Products.AddAsync(product);
+                    await _dbContext.SaveChangesAsync();
+                    return Ok(product);
+                }
+                ModelState.AddModelError("-99", "Failed to create the product list. ");
+                return BadRequest(ModelState);
+
             }
-            return BadRequest(ModelState);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Create Error");
+                ModelState.AddModelError("-999", ex.Message);
+
+                return BadRequest(ModelState);
+            }
         }
 
         // PUT: api/products/{id}
         [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromBody] Product updatedProduct)
+        public async Task<IActionResult> Update(int id, [FromBody] Product updatedProduct)
         {
-            if (ModelState.IsValid)
+            try
             {
-                var product = _dbContext.Products.FirstOrDefault(p => p.Id == id);
-                if (product == null)
+                string oldFilePath = string.Empty;
+                if (ModelState.IsValid)
                 {
-                    return NotFound();
+                    var product = await _dbContext.Products.FirstOrDefaultAsync(p => p.Id == id);
+                    oldFilePath = product.Content;
+
+                    if (product == null)
+                    {
+                        return NotFound();
+                    }
+
+                    // Content 값을 파일로 저장을 합니다. 그리고 저장된 파일의 경로를 Content에 저장합니다.
+                    var contentFileName = $"{Guid.NewGuid()}.txt";
+                    var saveDir = Path.Combine(AppContext.BaseDirectory, GlobalSettings.Instance.ProductContentPath);
+
+                    if (Directory.Exists(saveDir) == false)
+                    {
+                        Directory.CreateDirectory(saveDir);
+                    }
+                    var contentFilePath = Path.Combine(saveDir, contentFileName);
+                    await System.IO.File.WriteAllTextAsync(contentFilePath, updatedProduct.Content);
+
+                    product.Content = contentFilePath;
+                    product.Name = updatedProduct.Name;
+                    product.Price = updatedProduct.Price;
+                    product.UpdatedDate = DateTime.Now;
+                    product.ProductFiles = updatedProduct.ProductFiles;
+
+                    await _dbContext.SaveChangesAsync();
+
+                    // 기존 파일 삭제
+                    if (!string.IsNullOrEmpty(oldFilePath))
+                    {
+                        System.IO.File.Delete(oldFilePath);
+                    }
+                    return Ok(product);
                 }
+                return BadRequest(new { message = "Failed to update the product. " });
 
-                product.Name = updatedProduct.Name;
-                product.Price = updatedProduct.Price;
-                product.Content = updatedProduct.Content;
-                product.UpdatedDate = DateTime.Now;
-
-                _dbContext.SaveChanges();
-                return NoContent();
             }
-            return BadRequest(ModelState);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Update Error");
+                return BadRequest(new { message = "Failed to update the product. " });
+            }
         }
 
         // DELETE: api/products/{id}
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var product = _dbContext.Products.FirstOrDefault(p => p.Id == id);
+            var product = await _dbContext.Products.FirstOrDefaultAsync(p => p.Id == id);
             if (product == null)
             {
-                return NotFound();
+                return NotFound(new { message = "Failed to update the product. " });
             }
 
             _dbContext.Products.Remove(product);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
             return NoContent();
         }
     }

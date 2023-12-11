@@ -12,7 +12,7 @@
         @for (int i = Model.StartPage; i <= Model.EndPage; i++)
         {
             <li class="page-item">
-                <button route-pageNumber="@i" class=" btnPage page-link @(Model.PageNumber == i ? "active" : "disabled")">@i &nbsp;</button>
+                <button route-pageNumber="@i" id="btn-@i" class=" btnPage page-link @(Model.PageNumber == i ? "active" : "disabled")">@i &nbsp;</button>
             </li>
         }
         <li class="page-item @(Model.StartPage + Model.PageSize-1 >= Model.TotalPages ? "disabled" : "")">

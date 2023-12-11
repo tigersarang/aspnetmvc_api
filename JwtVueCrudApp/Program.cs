@@ -1,3 +1,4 @@
+using JwtVueCrudApp;
 using JwtVueCrudApp.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -23,6 +24,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlSer
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 string secretKey = jwtSettings.GetSection("SecretKey").Value;
 var key = Encoding.ASCII.GetBytes(secretKey);
+
+// 전역 변수 값 설정.
+GlobalSettings.Instance = builder.Configuration.GetSection("GlobalSettings").Get<GlobalSettings>();
 
 builder.Services.AddAuthentication(auth =>
 {

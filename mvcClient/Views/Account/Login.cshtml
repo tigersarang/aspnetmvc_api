@@ -5,6 +5,7 @@
 <h2>Login</h2>
 
 <form asp-controller="Account" asp-action="Login" method="post">
+    <input type="hidden" name="returnUrl" value="@ViewData["returnUrl"]" />
     <div class="form-group">
         <label for="userName">Username</label>
         <input type="text" class="form-control" id="userName" name="userName" placeholder="Enter username" required>
@@ -17,5 +18,5 @@
     <div class="alert-danger">
         @Html.ValidationSummary()
     </div>
-    <button type="submit" class="btn btn-primary">Login</button>
+    <button type="submit" class="btn btn-primary" id="btnLogin">Login</button>
 </form>

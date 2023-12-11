@@ -1,15 +1,32 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
+using mvcClient.Models;
 using mvcClient.Utils;
 using Serilog;
-using System.Text;
+using System.Net.Security;
 
 var builder = WebApplication.CreateBuilder(args);
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
-    .WriteTo.File("c:/JwtLogs/log.txt", rollingInterval: RollingInterval.Day)
+    .WriteTo.File("c:/JwtLogs/client/log.txt", rollingInterval: RollingInterval.Day)
     .CreateLogger();
+
+builder.Services.Configure<KestrelServerOptions>(options =>
+{
+    options.Limits.MaxRequestBodySize = 52428800 * 4; // 200MB
+});
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+})
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Account/Login";
+    });
 
 builder.Host.UseSerilog();
 
@@ -25,36 +42,11 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
+GV.I = builder.Configuration.GetSection("GV").Get<GV>();
+
 builder.Services.AddHttpClient<ApiClient>(client =>
 {
     client.BaseAddress = new Uri("https://localhost:7009/api/");
-});
-
-var jwtSettings = builder.Configuration.GetSection("JwtSettings");
-string secretKey = jwtSettings.GetSection("SecretKey").Value;
-var key = Encoding.ASCII.GetBytes(secretKey);
-
-builder.Services.AddAuthentication(auth =>
-{
-    auth.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    auth.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(token =>
-{
-    token.RequireHttpsMetadata = false;
-    token.SaveToken = true;
-    token.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(key),
-        ValidateIssuer = true,
-        ValidIssuer = jwtSettings.GetSection("Issuer").Value,
-        ValidateAudience = true,
-        ValidAudience = jwtSettings.GetSection("Audience").Value,
-        RequireExpirationTime = true,
-        ValidateLifetime = true,
-        ClockSkew = TimeSpan.Zero
-    };
 });
 
 var app = builder.Build();
@@ -62,10 +54,12 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
+app.UseExceptionHandler("/Home/Error");
+
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
@@ -74,7 +68,6 @@ app.UseSession();
 
 app.UseRouting();
 
-app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(

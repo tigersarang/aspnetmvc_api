@@ -32,35 +32,14 @@ namespace JwtVueCrudApp.Controllers
 
                 _dbContext.Replies.Add(reply);
                 _dbContext.SaveChanges();
+
                 return Ok(reply);
             }
-
+            ModelState.AddModelError("", "Some error occured");
             return BadRequest(ModelState);
         }
 
-        // PUT: api/replies/{id}
-        [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromBody] Reply reply)
-        {
-            if (ModelState.IsValid)
-            {
-                var existingReply = _dbContext.Replies.FirstOrDefault(p => p.Id == id);
-                if (existingReply == null)
-                {
-                    return NotFound();
-                }
-
-                existingReply.Content = reply.Content;
-                existingReply.UpdatedDate = DateTime.Now;
-
-                _dbContext.SaveChanges();
-                return Ok(existingReply);
-            }
-
-            return BadRequest(ModelState);
-        }
-
-        // DELETE: api/replies/{id}
+        // DELETE: api/replys/{id}
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
@@ -72,7 +51,7 @@ namespace JwtVueCrudApp.Controllers
 
             _dbContext.Replies.Remove(reply);
             _dbContext.SaveChanges();
-            return Ok(reply);
+            return NoContent();
         }
 
     }

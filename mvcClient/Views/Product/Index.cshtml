@@ -16,7 +16,7 @@
 
                 <input type="submit" value="Search" class="btn btn-primary" />
             </div>
-            <a asp-action="Create" class="btn btn-primary">Create New</a>
+            <a asp-action="Create" class="btn btn-primary" id="btnCreate">Create New</a>
 
         </div>
     </div>
@@ -33,8 +33,8 @@
             <th class="col-1">
                 Price
             </th>
-            <th class="col-2">
-                Register
+            <th class="col-1">
+                UserName
             </th>
             <th class="col-2">
                 RegistDate
@@ -49,7 +49,7 @@
                     @Html.DisplayFor(modelItem => item.Id)
                 </td>
                 <td>
-                    @Html.ActionLink(item.Name, "Detail", new { id = item.Id }, new {@class="text-decoration-none"})
+                    @Html.ActionLink(item.Name, "Detail", new { id = item.Id }, new {@class="text-decoration-none", id="product-" + item.Id})
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Price)

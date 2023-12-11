@@ -3,23 +3,26 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CommLibs.Models
 {
     public class Product
     {
+        [Key]
         public int Id { get; set; }
 
+        [Required]
+        [MaxLength(100)]
         public string Name { get; set; }
 
+        [Column(TypeName = "decimal(18,2)")]
         public decimal Price { get; set; }
 
         public string Content { get; set; }
 
-        public List<Reply>? Replies { get; set; }
+        public ICollection<Reply>? Replies { get; set; }
+        public ICollection<ProductFile>? ProductFiles { get; set; }
 
         public int? UserId { get; set; }
         public User? User { get; set; }

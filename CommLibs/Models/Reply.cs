@@ -13,13 +13,12 @@ namespace CommLibs.Models
         public int Id { get; set; }
         public string Content { get; set; }
 
-        public int ProductId { get; set; }
+        public int? ProductId { get; set; }
+
         [JsonIgnore]
         public Product? Product { get; set; }
-        public int UserId { get; set; }
-        [JsonIgnore]
+        public int? UserId { get; set; }
         public User? User { get; set; }
-        public DateTime? CreatedDate { get; set; } = DateTime.Now;
-        public DateTime? UpdatedDate { get; set; } = DateTime.Now;
+        public DateTime? CreatedAt { get; set; } = DateTime.Now;
     }
 }

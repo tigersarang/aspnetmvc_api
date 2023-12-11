@@ -20,7 +20,7 @@ namespace mvcClient.Utils
 
         public static List<Claim> GetClaims(string token)
         {
-            var jwtSecurityToken = DecodeToken(token);
+              var jwtSecurityToken = DecodeToken(token);
             return jwtSecurityToken.Claims.ToList();
         }
     }

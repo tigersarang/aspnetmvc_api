@@ -8,15 +8,24 @@ namespace JwtVueCrudApp.Models
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
         public DbSet<Product> Products { get; set; }
+        public DbSet<ProductFile> ProductFiles { get; set; }
         public DbSet<User> Users { get; set; }
-        public DbSet<Reply> Replies { get; set; }
         public DbSet<Role> Roles { get; set; }
+        public DbSet<Reply> Replies { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<User>()
-                .HasMany(u => u.Roles)
-                .WithMany(r => r.Users);
+            modelBuilder.Entity<Product>()
+                .HasMany(p => p.Replies)
+                .WithOne()
+                .HasForeignKey(p => p.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Product>()
+                .HasMany(p => p.ProductFiles)
+                .WithOne()
+                .HasForeignKey(p => p.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
